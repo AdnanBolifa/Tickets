@@ -34,14 +34,6 @@ class AuthService {
     return await storage.read(key: 'jwt_token');
   }
 
-  Future<Map<String, String>> getHeaders() async {
-    final token = await getToken();
-    if (token != null) {
-      return {'Authorization': 'Bearer $token'};
-    }
-    return {};
-  }
-
   Future<void> logout() async {
     // Remove the token when the user logs out.
     await storage.delete(key: 'jwt_token');
