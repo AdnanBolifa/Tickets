@@ -124,6 +124,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () {
                     ApiService.createUser(
                         nameController.text, jobController.text);
+                    nameController.clear(); // Clear the name field
+                    jobController.clear(); // Clear the job field
                     Navigator.of(context).pop();
                   },
                   child: const Text('Add'),
