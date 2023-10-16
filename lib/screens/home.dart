@@ -80,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showAddDetails() {
+  void _addUserDetails() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -111,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const TextField(
                   decoration: InputDecoration(
-                    labelText: 'Email',
+                    labelText: 'Job',
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -181,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _showAddDetails();
+          _addUserDetails();
         },
         backgroundColor: Colors.blue,
         child: const Icon(Icons.add),
