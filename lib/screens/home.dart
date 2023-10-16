@@ -13,6 +13,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController searchController = TextEditingController();
   List<User> userList = [];
+  List<User> originalList = [];
 
   @override
   void initState() {
@@ -24,13 +25,14 @@ class _HomeScreenState extends State<HomeScreen> {
     final users = await ApiService.getUsers();
     setState(() {
       userList = users;
+      originalList = userList;
     });
   }
 
   void _filterUsers(String query) {
     setState(() {
       if (query.isEmpty) {
-        userList = List.from(userList);
+        userList = List.from(originalList);
       } else {
         userList = userList.where((user) {
           return user.userName.toLowerCase().contains(query.toLowerCase());
