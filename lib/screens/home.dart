@@ -80,6 +80,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController jobController = TextEditingController();
+
   void _addUserDetails() {
     showDialog(
       context: context,
@@ -104,22 +107,26 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
-                const TextField(
-                  decoration: InputDecoration(
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
                     labelText: 'Name',
                   ),
                 ),
-                const TextField(
-                  decoration: InputDecoration(
+                TextField(
+                  controller: jobController,
+                  decoration: const InputDecoration(
                     labelText: 'Job',
                   ),
                 ),
                 const SizedBox(height: 10),
                 TextButton(
                   onPressed: () {
+                    ApiService.createUser(
+                        nameController.text, jobController.text);
                     Navigator.of(context).pop();
                   },
-                  child: const Text('Close'),
+                  child: const Text('Add'),
                 ),
               ],
             ),

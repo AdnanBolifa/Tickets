@@ -35,4 +35,22 @@ class ApiService {
 
     return users;
   }
+
+  static Future<void> createUser(String name, String job) async {
+    final url = Uri.parse('https://reqres.in/api/users');
+
+    final response = await http.post(
+      url,
+      body: {'name': name, 'job': job}, // Fix the syntax error here
+    );
+
+    if (response.statusCode == 201) {
+      // User creation successful
+      // You can handle the response or return any necessary data here
+      print(response.body);
+    } else {
+      // Handle the error case appropriately
+      throw Exception('Failed to create user');
+    }
+  }
 }
