@@ -41,8 +41,9 @@ class _LoginPageState extends State<LoginPage> {
                   try {
                     // ignore: unused_local_variable
                     final token = await AuthService().login(email, password);
-                    await AuthService().storeToken(token);
-                    print('Login successed $token');
+                    await AuthService().storeTokens(token);
+                    print(
+                        '=====================Logged in successfully ==================');
 
                     // Handle successful login, e.g., store the token and navigate to another screen.
                     Navigator.of(context).push(

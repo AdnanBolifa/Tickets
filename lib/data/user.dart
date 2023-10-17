@@ -1,6 +1,6 @@
 class User {
   final String userName;
-  final String userEmail;
+  final String mobile;
 
-  User({required this.userName, required this.userEmail});
+  User({required this.userName, required this.mobile});
 }

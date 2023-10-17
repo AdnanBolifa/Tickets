@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_auth/data/user.dart';
+import 'package:jwt_auth/main.dart';
+import 'package:jwt_auth/screens/add_reports.dart';
 import 'package:jwt_auth/services/api_service.dart';
+import 'package:jwt_auth/services/auth_service.dart';
 import 'user_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,11 +21,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchUsers();
+    _fetchReports();
   }
 
-  void _fetchUsers() async {
-    final users = await ApiService.getUsers();
+  void _fetchReports() async {
+    final users = await ApiService().getReports(context);
     setState(() {
       userList = users;
       originalList = userList;
@@ -66,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 10),
                 Text('Name: ${user.userName}'),
-                Text('Email: ${user.userEmail}'),
+                Text('Phone: ${user.mobile}'),
                 const SizedBox(height: 10),
                 TextButton(
                   onPressed: () {
@@ -144,18 +147,24 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Costumers'),
+        title: const Text('Reports'),
+        centerTitle: true,
         backgroundColor: Colors.blue,
         actions: [
           IconButton(
             onPressed: () => searchController.clear(),
-            icon: const Icon(Icons.clear),
+            icon: const Icon(Icons.menu),
           ),
         ],
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            // Handle logout or navigation to the login screen here
+            AuthService().logout();
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => LoginApp(),
+              ),
+            );
           },
         ),
       ),
@@ -176,23 +185,32 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: userList.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    _showUserDetails(userList[index]);
-                  },
-                  child: UserCard(user: userList[index]),
-                );
-              },
-            ),
-          ),
+            child: userList.isEmpty
+                ? const Center(
+                    child:
+                        CircularProgressIndicator(), // Show a loading indicator
+                  )
+                : ListView.builder(
+                    itemCount: userList.length,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          _showUserDetails(userList[index]);
+                        },
+                        child: UserCard(user: userList[index]),
+                      );
+                    },
+                  ),
+          )
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _addUserDetails();
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AddReport(),
+            ),
+          );
         },
         backgroundColor: Colors.blue,
         child: const Icon(Icons.add),

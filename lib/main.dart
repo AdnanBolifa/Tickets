@@ -7,11 +7,11 @@ void main() async {
   // Ensure that the WidgetsBinding is initialized before checking for a token.
   WidgetsFlutterBinding.ensureInitialized();
 
-  final token = await AuthService().getToken();
-  print("start up $token");
+  final accesstoken = await AuthService().getAccessToken();
+  print("start up $accesstoken");
   runApp(
     MaterialApp(
-      home: token != null ? HomeScreen() : const LoginPage(),
+      home: accesstoken != null ? const HomeScreen() : const LoginPage(),
     ),
   );
 }

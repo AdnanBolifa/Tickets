@@ -35,13 +35,16 @@ class UserCard extends StatelessWidget {
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
+                textDirection: TextDirection.rtl,
               ),
               const SizedBox(height: 8),
               Text(
-                user.userEmail,
+                user.mobile,
                 style: const TextStyle(
+                  fontSize: 16,
                   color: Colors.white,
                 ),
+                textDirection: TextDirection.rtl,
               ),
             ],
           ),
