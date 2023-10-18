@@ -4,19 +4,23 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_auth/data/api_config.dart';
+import 'package:jwt_auth/data/problem_config.dart';
 import 'package:jwt_auth/data/report_config.dart';
+import 'package:jwt_auth/data/solution_config.dart';
 import 'package:jwt_auth/main.dart';
 import 'package:jwt_auth/services/auth_service.dart';
 
 class ApiService {
-  static Future<void> addReport(String name, acc, phone, place, status) async {
+  Future<void> addReport(
+      String name, acc, phone, place, sector, List<int> checkbox) async {
     final accessToken = await AuthService().getAccessToken();
     final response = await http.post(Uri.parse(APIConfig.addUrl), body: {
       'name': name,
       'phone': phone,
       'account': acc,
       'place': place,
-      'sector': status,
+      'sector': sector,
+      'solution': checkbox.map((item) => item.toString()).toList(),
     }, headers: {
       'Authorization': 'Bearer $accessToken'
     });
@@ -82,37 +86,39 @@ class ApiService {
     return users;
   }
 
-  Future<List<String>> fetchProblems() async {
-    List<String> problemsCheckbox = [];
+  Future<List<Problem>> fetchProblems() async {
+    List<Problem> problems = [];
     final response = await http.get(Uri.parse(APIConfig.problemsUrl));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseMap =
           jsonDecode(utf8.decode(response.bodyBytes));
       final List<dynamic> results = responseMap['results'];
+
       for (var item in results) {
-        problemsCheckbox.add(item['name']);
+        problems.add(Problem.fromJson(item));
       }
 
-      return problemsCheckbox;
+      return problems;
     } else {
       throw Exception('Failed to fetch item names');
     }
   }
 
-  Future<List<String>> fetchSolutions() async {
-    List<String> problemsCheckbox = [];
+  Future<List<Solution>> fetchSolutions() async {
+    List<Solution> solutions = [];
     final response = await http.get(Uri.parse(APIConfig.solutionsUrl));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseMap =
           jsonDecode(utf8.decode(response.bodyBytes));
       final List<dynamic> results = responseMap['results'];
+
       for (var item in results) {
-        problemsCheckbox.add(item['solution']);
+        solutions.add(Solution.fromJson(item));
       }
 
-      return problemsCheckbox;
+      return solutions;
     } else {
       throw Exception('Failed to fetch item names');
     }
