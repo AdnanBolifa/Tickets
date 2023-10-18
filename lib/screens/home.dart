@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jwt_auth/data/user.dart';
+import 'package:jwt_auth/data/report_config.dart';
 import 'package:jwt_auth/main.dart';
 import 'package:jwt_auth/screens/add_reports.dart';
 import 'package:jwt_auth/services/api_service.dart';
@@ -15,8 +15,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController searchController = TextEditingController();
-  List<User> userList = [];
-  List<User> originalList = [];
+  List<Report> userList = [];
+  List<Report> originalList = [];
 
   @override
   void initState() {
@@ -44,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _showUserDetails(User user) {
+  void _showUserDetails(Report user) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -85,63 +85,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<void> _handleRefresh() async {
+    await Future.delayed(const Duration(seconds: 2));
+    _fetchReports();
+  }
+
   final TextEditingController nameController = TextEditingController();
   final TextEditingController jobController = TextEditingController();
-
-  void _addUserDetails() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Enter User Details',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Name',
-                  ),
-                ),
-                TextField(
-                  controller: jobController,
-                  decoration: const InputDecoration(
-                    labelText: 'Job',
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextButton(
-                  onPressed: () {
-                    ApiService.createUser(
-                        nameController.text, jobController.text);
-                    nameController.clear(); // Clear the name field
-                    jobController.clear(); // Clear the job field
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Add'),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -162,53 +112,56 @@ class _HomeScreenState extends State<HomeScreen> {
             AuthService().logout();
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => LoginApp(),
+                builder: (context) => const LoginApp(),
               ),
             );
           },
         ),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: searchController,
-              onChanged: _filterUsers,
-              decoration: InputDecoration(
-                labelText: 'Search Users',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
+      body: RefreshIndicator(
+        onRefresh: _handleRefresh,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                controller: searchController,
+                onChanged: _filterUsers,
+                decoration: InputDecoration(
+                  labelText: 'Search Users',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  prefixIcon: const Icon(Icons.search),
                 ),
-                prefixIcon: const Icon(Icons.search),
               ),
             ),
-          ),
-          Expanded(
-            child: userList.isEmpty
-                ? const Center(
-                    child:
-                        CircularProgressIndicator(), // Show a loading indicator
-                  )
-                : ListView.builder(
-                    itemCount: userList.length,
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () {
-                          _showUserDetails(userList[index]);
-                        },
-                        child: UserCard(user: userList[index]),
-                      );
-                    },
-                  ),
-          )
-        ],
+            Expanded(
+              child: userList.isEmpty
+                  ? const Center(
+                      child:
+                          CircularProgressIndicator(), // Show a loading indicator
+                    )
+                  : ListView.builder(
+                      itemCount: userList.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            _showUserDetails(userList[index]);
+                          },
+                          child: UserCard(user: userList[index]),
+                        );
+                      },
+                    ),
+            )
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => AddReport(),
+              builder: (context) => const AddReport(),
             ),
           );
         },

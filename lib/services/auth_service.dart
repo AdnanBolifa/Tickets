@@ -1,28 +1,27 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:jwt_auth/data/API_Config.dart';
 
 class AuthService {
-  static const apiLogin = 'http://10.255.255.15/api/vip/login';
-  static const apiRefresh = 'http://165.16.36.4:8015/api/vip/refresh';
+  final storage = const FlutterSecureStorage();
 
   Future<String> login(String email, String password) async {
-    // Make an HTTP POST request to your API to authenticate the user.
-    final response = await http.post(Uri.parse(apiLogin), body: {
+    if (email.isEmpty || password.isEmpty) {
+      throw ArgumentError('Email and password must not be empty');
+    }
+
+    final response = await http.post(Uri.parse(APIConfig.loginUrl), body: {
       'email': email,
       'password': password,
     });
 
     if (response.statusCode == 200) {
-      // Successfully logged in, return the JWT token.
       return response.body;
     } else {
-      // Handle login failure.
       throw Exception('Failed to log in');
     }
   }
-
-  final storage = const FlutterSecureStorage();
 
   Future<void> storeTokens(String apiResponse) async {
     final Map<String, dynamic> tokens = jsonDecode(apiResponse);
@@ -46,16 +45,18 @@ class AuthService {
     return await storage.read(key: 'access_token');
   }
 
-  Future<void> getNewAccessToken() async {
-    final response = await http.post(Uri.parse(apiRefresh), body: {
-      'refresh': await getRefreshToken(),
-    });
+  Future<void> getNewAccessToken() {
+    return getRefreshToken().then((refreshToken) async {
+      final response = await http.post(Uri.parse(APIConfig.refreshUrl), body: {
+        'refresh': refreshToken,
+      });
 
-    if (response.statusCode == 200) {
-      storeTokens(response.body);
-    } else {
-      throw Exception('Failed to log in');
-    }
+      if (response.statusCode == 200) {
+        storeTokens(response.body);
+      } else {
+        throw Exception('Failed to log in');
+      }
+    });
   }
 
   Future<void> logout() async {

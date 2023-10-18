@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_auth/services/api_service.dart';
+import 'package:jwt_auth/widgets/text_field.dart';
 
 class AddReport extends StatefulWidget {
+  const AddReport({super.key});
+
   @override
   _AddReportScreenState createState() => _AddReportScreenState();
 }
@@ -14,14 +17,35 @@ class _AddReportScreenState extends State<AddReport> {
   String place = '';
   String status = '';
   String city = '';
-  List<bool> checkboxGroup1 = List.generate(30, (index) => false);
-  List<bool> checkboxGroup2 = List.generate(30, (index) => false);
+
+  List<String> problemsCheckbox = [];
+  List<String> solutionsCheckbox = [];
+  List<bool> problemCheckboxGroup = List.generate(28, (index) => false);
+  List<bool> solutionCheckboxGroup = List.generate(18, (index) => false);
+
+  @override
+  void initState() {
+    super.initState();
+    ApiService().fetchProblems().then((problems) {
+      setState(() {
+        problemsCheckbox = problems;
+      });
+    });
+    ApiService().fetchSolutions().then((solutions) {
+      setState(() {
+        solutionsCheckbox = solutions;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Report'),
+        title: const Text(
+          'إضافة بلاغ',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -30,189 +54,241 @@ class _AddReportScreenState extends State<AddReport> {
           child: Column(
             children: [
               // Text Fields
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Name',
-                  hintText: 'Enter your name',
-                  labelStyle: const TextStyle(fontSize: 16, color: Colors.blue),
-                  hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
-                  contentPadding: const EdgeInsets.all(16.0),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Colors.grey, width: 1.0),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Colors.blue, width: 2.0),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
+              buildTextField(
+                label: 'الأسم',
+                hint: 'ادخل اسم العميل',
+                value: name,
                 onChanged: (value) {
                   setState(() {
                     name = value;
                   });
                 },
               ),
-              const SizedBox(height: 16.0), // Add spacing
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Account',
-                  hintText: 'Enter your account',
-                  labelStyle: const TextStyle(fontSize: 16, color: Colors.blue),
-                  hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
-                  contentPadding: const EdgeInsets.all(16.0),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Colors.grey, width: 1.0),
-                    borderRadius: BorderRadius.circular(10.0),
+
+              Directionality(
+                textDirection: TextDirection.rtl,
+                child: TextField(
+                  textDirection: TextDirection.rtl,
+                  decoration: InputDecoration(
+                    hintTextDirection: TextDirection.rtl,
+                    labelText: 'الحساب',
+                    hintText: 'ادخل الحساب',
+                    labelStyle:
+                        const TextStyle(fontSize: 16, color: Colors.blue),
+                    hintStyle:
+                        const TextStyle(fontSize: 14, color: Colors.grey),
+                    contentPadding: const EdgeInsets.all(16.0),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.grey, width: 1.0),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.blue, width: 2.0),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Colors.blue, width: 2.0),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      account = value;
+                    });
+                  },
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    account = value;
-                  });
-                },
+              ),
+              const SizedBox(height: 16.0), // Add
+
+              Directionality(
+                textDirection: TextDirection.rtl,
+                child: TextField(
+                  textDirection: TextDirection.rtl,
+                  decoration: InputDecoration(
+                    hintTextDirection: TextDirection.rtl,
+                    labelText: 'الهاتف',
+                    hintText: 'ادخل رقم الهاتف',
+                    labelStyle:
+                        const TextStyle(fontSize: 16, color: Colors.blue),
+                    hintStyle:
+                        const TextStyle(fontSize: 14, color: Colors.grey),
+                    contentPadding: const EdgeInsets.all(16.0),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.grey, width: 1.0),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.blue, width: 2.0),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      phone = value;
+                    });
+                  },
+                ),
+              ),
+              const SizedBox(height: 16.0),
+
+              Directionality(
+                textDirection: TextDirection.rtl,
+                child: TextField(
+                  textDirection: TextDirection.rtl,
+                  decoration: InputDecoration(
+                    hintTextDirection: TextDirection.rtl,
+                    labelText: 'المكان',
+                    hintText: ' ادخل مكان العميل',
+                    labelStyle:
+                        const TextStyle(fontSize: 16, color: Colors.blue),
+                    hintStyle:
+                        const TextStyle(fontSize: 14, color: Colors.grey),
+                    contentPadding: const EdgeInsets.all(16.0),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.grey, width: 1.0),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.blue, width: 2.0),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      place = value;
+                    });
+                  },
+                ),
               ),
               const SizedBox(height: 16.0), // Add spacing
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Phone',
-                  hintText: 'Enter your phone number',
-                  labelStyle: const TextStyle(fontSize: 16, color: Colors.blue),
-                  hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
-                  contentPadding: const EdgeInsets.all(16.0),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Colors.grey, width: 1.0),
-                    borderRadius: BorderRadius.circular(10.0),
+              Directionality(
+                textDirection: TextDirection.rtl,
+                child: TextField(
+                  textDirection: TextDirection.rtl,
+                  decoration: InputDecoration(
+                    hintTextDirection: TextDirection.rtl,
+                    labelText: 'البرج',
+                    hintText: 'ادخل البرج',
+                    labelStyle:
+                        const TextStyle(fontSize: 16, color: Colors.blue),
+                    hintStyle:
+                        const TextStyle(fontSize: 14, color: Colors.grey),
+                    contentPadding: const EdgeInsets.all(16.0),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.grey, width: 1.0),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.blue, width: 2.0),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Colors.blue, width: 2.0),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      status = value;
+                    });
+                  },
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    phone = value;
-                  });
-                },
               ),
               const SizedBox(height: 16.0), // Add spacing
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Place',
-                  hintText: 'Enter the place',
-                  labelStyle: const TextStyle(fontSize: 16, color: Colors.blue),
-                  hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
-                  contentPadding: const EdgeInsets.all(16.0),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Colors.grey, width: 1.0),
-                    borderRadius: BorderRadius.circular(10.0),
+              Directionality(
+                textDirection: TextDirection.rtl,
+                child: TextField(
+                  textDirection: TextDirection.rtl,
+                  decoration: InputDecoration(
+                    hintTextDirection: TextDirection.rtl,
+                    labelText: 'City',
+                    hintText: 'Enter the city',
+                    labelStyle:
+                        const TextStyle(fontSize: 16, color: Colors.blue),
+                    hintStyle:
+                        const TextStyle(fontSize: 14, color: Colors.grey),
+                    contentPadding: const EdgeInsets.all(16.0),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.grey, width: 1.0),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.blue, width: 2.0),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Colors.blue, width: 2.0),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      city = value;
+                    });
+                  },
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    place = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 16.0), // Add spacing
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Status',
-                  hintText: 'Enter the status',
-                  labelStyle: const TextStyle(fontSize: 16, color: Colors.blue),
-                  hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
-                  contentPadding: const EdgeInsets.all(16.0),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Colors.grey, width: 1.0),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Colors.blue, width: 2.0),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    status = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 16.0), // Add spacing
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'City',
-                  hintText: 'Enter the city',
-                  labelStyle: const TextStyle(fontSize: 16, color: Colors.blue),
-                  hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
-                  contentPadding: const EdgeInsets.all(16.0),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Colors.grey, width: 1.0),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Colors.blue, width: 2.0),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    city = value;
-                  });
-                },
               ),
 
               const SizedBox(height: 15.0), // Add spacing
-              const Text('Checkbox Group 1'),
-              const SizedBox(height: 15.0),
 
+              Container(
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                    color: Colors.blueGrey,
+                    borderRadius: BorderRadius.circular(20)),
+                child: const Center(
+                  child: Text(
+                    'المشاكل',
+                    style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 15.0),
               DecoratedBox(
                 decoration: BoxDecoration(
                   color: Colors.grey[200], // Gray background color
                   border: Border.all(color: Colors.grey), // Border color
                   borderRadius: BorderRadius.circular(8.0), // Border radius
                 ),
-                child: Container(
+                child: SizedBox(
                   height: 200, // Adjust the height as needed
-                  child: ListView(
-                    children: List.generate(30, (index) {
+                  child: ListView.builder(
+                    itemCount: problemsCheckbox.length,
+                    itemBuilder: (context, index) {
                       return CheckboxListTile(
-                        title: Text('Checkbox ${index + 1}'),
-                        value: checkboxGroup1[index],
+                        title: Text(problemsCheckbox[index]),
+                        value: problemCheckboxGroup[index],
                         onChanged: (value) {
                           setState(() {
-                            checkboxGroup1[index] = value!;
+                            problemCheckboxGroup[index] = value!;
                           });
                         },
                       );
-                    }),
+                    },
                   ),
                 ),
               ),
-
-              // Add spacing between the checkbox groups
 
               // Checkboxes - Group 2
               const SizedBox(height: 15.0), // Add spacing
-              const Text('Checkbox Group 2'),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                    color: Colors.blueGrey,
+                    borderRadius: BorderRadius.circular(20)),
+                child: const Center(
+                  child: Text(
+                    'الحلول',
+                    style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15.0),
               const SizedBox(height: 15.0),
 
               DecoratedBox(
@@ -221,20 +297,21 @@ class _AddReportScreenState extends State<AddReport> {
                   border: Border.all(color: Colors.grey), // Border color
                   borderRadius: BorderRadius.circular(8.0), // Border radius
                 ),
-                child: Container(
+                child: SizedBox(
                   height: 200, // Adjust the height as needed
-                  child: ListView(
-                    children: List.generate(30, (index) {
+                  child: ListView.builder(
+                    itemCount: 18,
+                    itemBuilder: (context, index) {
                       return CheckboxListTile(
-                        title: Text('Checkbox ${index + 1}'),
-                        value: checkboxGroup2[index],
+                        title: Text(solutionsCheckbox[index]),
+                        value: solutionCheckboxGroup[index],
                         onChanged: (value) {
                           setState(() {
-                            checkboxGroup2[index] = value!;
+                            solutionCheckboxGroup[index] = value!;
                           });
                         },
                       );
-                    }),
+                    },
                   ),
                 ),
               ),
@@ -245,6 +322,7 @@ class _AddReportScreenState extends State<AddReport> {
                 onPressed: () {
                   // You can access the input values from the variables (name, account, phone, etc.)
                   ApiService.addReport(name, account, phone, place, status);
+                  Navigator.pop(context);
                 },
                 child: const Text('Add Report'),
               ),

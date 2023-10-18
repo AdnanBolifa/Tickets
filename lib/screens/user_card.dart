@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:jwt_auth/data/user.dart';
+import 'package:jwt_auth/data/report_config.dart';
 
 class UserCard extends StatelessWidget {
-  final User user;
+  final Report user;
 
   const UserCard({Key? key, required this.user}) : super(key: key);
 

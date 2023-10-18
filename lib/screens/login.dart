@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:jwt_auth/screens/home.dart';
 import 'package:jwt_auth/services/auth_service.dart';
@@ -48,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
                     // Handle successful login, e.g., store the token and navigate to another screen.
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => HomeScreen(),
+                        builder: (context) => const HomeScreen(),
                       ),
                     );
                   } catch (e) {
