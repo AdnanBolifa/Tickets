@@ -11,10 +11,8 @@ import 'package:jwt_auth/main.dart';
 import 'package:jwt_auth/services/auth_service.dart';
 
 class ApiService {
-  Future<void> addReport(String name, acc, phone, place, sector) async {
-    List<int> x = [1, 2, 4];
-    List<int> y = [3, 5];
-
+  Future<void> addReport(String name, acc, phone, place, sector,
+      List<int> problems, List<int> solution) async {
     // Create a map to represent the request body
     Map<String, dynamic> requestBody = {
       'name': name,
@@ -23,23 +21,49 @@ class ApiService {
       'place': place,
       'sector': sector,
       'note': 'xzxxxx',
-      'problem': x, 
-      'solutions': y,
+      'problem': problems,
+      'solutions': solution,
     };
 
     final accessToken = await AuthService().getAccessToken();
 
     final response = await http.post(Uri.parse(APIConfig.addUrl),
-        body: jsonEncode(requestBody), 
+        body: jsonEncode(requestBody),
         headers: {
           'Authorization': 'Bearer $accessToken',
-          'Content-Type': 'application/json', 
+          'Content-Type': 'application/json',
         });
 
     if (response.statusCode == 201) {
       print("Report added successfully");
     } else {
-      print("======================================================");
+      throw Exception('Failed to add report: ${response.statusCode}');
+    }
+  }
+
+  Future<void> updateReport(String name, acc, phone, place, sector) async {
+    // Create a map to represent the request body
+    Map<String, dynamic> requestBody = {
+      'name': name,
+      'phone': phone,
+      'account': acc,
+      'place': place,
+      'sector': sector,
+      'note': 'xzxxxx',
+    };
+
+    final accessToken = await AuthService().getAccessToken();
+
+    final response = await http.put(Uri.parse(APIConfig.updateUrl),
+        body: jsonEncode(requestBody),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        });
+
+    if (response.statusCode == 200) {
+      print("Report added successfully");
+    } else {
       throw Exception('Failed to add report: ${response.statusCode}');
     }
   }

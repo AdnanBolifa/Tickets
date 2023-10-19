@@ -8,4 +8,5 @@ class APIConfig {
   static const String solutionsUrl = '${baseUrl}ticket/solutions/list';
   static const String problemsUrl = '${baseUrl}ticket/problems/list';
   static const String addUrl = '${baseUrl}ticket/add';
+  static const String updateUrl = '${baseUrl}ticket/37563/edit';
 }

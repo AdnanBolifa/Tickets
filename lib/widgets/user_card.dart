@@ -37,7 +37,6 @@ class UserCard extends StatelessWidget {
                 ),
                 textDirection: TextDirection.rtl,
               ),
-              const SizedBox(height: 8),
               Text(
                 user.mobile,
                 style: const TextStyle(

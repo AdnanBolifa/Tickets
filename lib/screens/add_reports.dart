@@ -3,6 +3,7 @@ import 'package:jwt_auth/data/problem_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
 import 'package:jwt_auth/services/api_service.dart';
 import 'package:jwt_auth/widgets/text_field.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class AddReport extends StatefulWidget {
   const AddReport({super.key});
@@ -64,149 +65,75 @@ class _AddReportScreenState extends State<AddReport> {
           child: Column(
             children: [
               // Text Fields
-              buildTextField(
-                label: 'الأسم',
-                hint: 'ادخل اسم العميل',
-                value: name,
-                onChanged: (value) {
+              textWidget(
+                'الاسم',
+                'ادخل الاسم',
+                name,
+                (value) {
                   setState(() {
                     name = value;
                   });
                 },
               ),
 
-              Directionality(
-                textDirection: TextDirection.rtl,
-                child: TextField(
-                  textDirection: TextDirection.rtl,
-                  decoration: InputDecoration(
-                    hintTextDirection: TextDirection.rtl,
-                    labelText: 'الحساب',
-                    hintText: 'ادخل الحساب',
-                    labelStyle:
-                        const TextStyle(fontSize: 16, color: Colors.blue),
-                    hintStyle:
-                        const TextStyle(fontSize: 14, color: Colors.grey),
-                    contentPadding: const EdgeInsets.all(16.0),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.grey, width: 1.0),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.blue, width: 2.0),
-                      borderRadius: BorderRadius.circular(10.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: textWidget(
+                      'الهاتف',
+                      'ادخل رقم الهاتف',
+                      name,
+                      (value) {
+                        setState(() {
+                          phone = value;
+                        });
+                      },
                     ),
                   ),
-                  onChanged: (value) {
-                    setState(() {
-                      account = value;
-                    });
-                  },
-                ),
+                  const SizedBox(width: 8.0),
+                  Expanded(
+                    child: textWidget(
+                      'الحساب',
+                      'ادخل الحساب',
+                      account,
+                      (value) {
+                        setState(() {
+                          account = value;
+                        });
+                      },
+                    ),
+                  ),
+                ],
               ),
 
-              const SizedBox(height: 16.0),
-
-              Directionality(
-                textDirection: TextDirection.rtl,
-                child: TextField(
-                  textDirection: TextDirection.rtl,
-                  decoration: InputDecoration(
-                    hintTextDirection: TextDirection.rtl,
-                    labelText: 'الهاتف',
-                    hintText: 'ادخل رقم الهاتف',
-                    labelStyle:
-                        const TextStyle(fontSize: 16, color: Colors.blue),
-                    hintStyle:
-                        const TextStyle(fontSize: 14, color: Colors.grey),
-                    contentPadding: const EdgeInsets.all(16.0),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.grey, width: 1.0),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.blue, width: 2.0),
-                      borderRadius: BorderRadius.circular(10.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: textWidget(
+                      'المكان',
+                      'ادخل مكان العميل',
+                      place,
+                      (value) {
+                        setState(() {
+                          place = value;
+                        });
+                      },
                     ),
                   ),
-                  onChanged: (value) {
-                    setState(() {
-                      phone = value;
-                    });
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 16.0),
-
-              Directionality(
-                textDirection: TextDirection.rtl,
-                child: TextField(
-                  textDirection: TextDirection.rtl,
-                  decoration: InputDecoration(
-                    hintTextDirection: TextDirection.rtl,
-                    labelText: 'المكان',
-                    hintText: ' ادخل مكان العميل',
-                    labelStyle:
-                        const TextStyle(fontSize: 16, color: Colors.blue),
-                    hintStyle:
-                        const TextStyle(fontSize: 14, color: Colors.grey),
-                    contentPadding: const EdgeInsets.all(16.0),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.grey, width: 1.0),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.blue, width: 2.0),
-                      borderRadius: BorderRadius.circular(10.0),
+                  const SizedBox(width: 8.0),
+                  Expanded(
+                    child: textWidget(
+                      'البرج',
+                      'ZXX-SECX...',
+                      sector,
+                      (value) {
+                        setState(() {
+                          sector = value;
+                        });
+                      },
                     ),
                   ),
-                  onChanged: (value) {
-                    setState(() {
-                      place = value;
-                    });
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 16.0),
-
-              Directionality(
-                textDirection: TextDirection.rtl,
-                child: TextField(
-                  textDirection: TextDirection.rtl,
-                  decoration: InputDecoration(
-                    hintTextDirection: TextDirection.rtl,
-                    labelText: 'البرج',
-                    hintText: 'ادخل البرج',
-                    labelStyle:
-                        const TextStyle(fontSize: 16, color: Colors.blue),
-                    hintStyle:
-                        const TextStyle(fontSize: 14, color: Colors.grey),
-                    contentPadding: const EdgeInsets.all(16.0),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.grey, width: 1.0),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.blue, width: 2.0),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      sector = value;
-                    });
-                  },
-                ),
+                ],
               ),
 
               const SizedBox(height: 15.0),
@@ -313,15 +240,18 @@ class _AddReportScreenState extends State<AddReport> {
 
               ElevatedButton(
                 onPressed: () {
-                  // List<int> checkbox = [];
-                  // for (int i = 0; i < solutionCheckboxGroup.length; i++) {
-                  //   if (solutionCheckboxGroup[i]) {
-                  //     checkbox.add(solutionsCheckbox[i].id);
-                  //   }
-                  // }
-                  ApiService()
-                      .addReport(name, account, phone, place, sector);
-                  Navigator.pop(context);
+                  if (name.isNotEmpty) {
+                    _submitReport();
+                  } else {
+                    Fluttertoast.showToast(
+                      msg: 'يرجى ادخال الاسم',
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.black,
+                      textColor: Colors.white,
+                    );
+                  }
                 },
                 style: ButtonStyle(
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -334,11 +264,31 @@ class _AddReportScreenState extends State<AddReport> {
                   'إرسال',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-              )
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _submitReport() {
+    List<int> selectedSolutionIds = solutionCheckboxGroup
+        .asMap()
+        .entries
+        .where((entry) => entry.value)
+        .map((entry) => solutionsCheckbox[entry.key].id)
+        .toList();
+
+    List<int> selectedProblemIds = problemCheckboxGroup
+        .asMap()
+        .entries
+        .where((entry) => entry.value)
+        .map((entry) => problemsCheckbox[entry.key].id)
+        .toList();
+
+    ApiService().addReport(name, account, phone, place, sector,
+        selectedProblemIds, selectedSolutionIds);
+    Navigator.pop(context);
   }
 }
