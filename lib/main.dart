@@ -4,7 +4,6 @@ import 'package:jwt_auth/services/auth_service.dart';
 import 'package:jwt_auth/screens/home.dart';
 
 void main() async {
-  // Ensure that the WidgetsBinding is initialized before checking for a token.
   WidgetsFlutterBinding.ensureInitialized();
 
   final accesstoken = await AuthService().getAccessToken();

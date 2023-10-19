@@ -313,14 +313,14 @@ class _AddReportScreenState extends State<AddReport> {
 
               ElevatedButton(
                 onPressed: () {
-                  List<int> checkbox = [];
-                  for (int i = 0; i < solutionCheckboxGroup.length; i++) {
-                    if (solutionCheckboxGroup[i]) {
-                      checkbox.add(solutionsCheckbox[i].id);
-                    }
-                  }
+                  // List<int> checkbox = [];
+                  // for (int i = 0; i < solutionCheckboxGroup.length; i++) {
+                  //   if (solutionCheckboxGroup[i]) {
+                  //     checkbox.add(solutionsCheckbox[i].id);
+                  //   }
+                  // }
                   ApiService()
-                      .addReport(name, account, phone, place, sector, checkbox);
+                      .addReport(name, account, phone, place, sector);
                   Navigator.pop(context);
                 },
                 style: ButtonStyle(

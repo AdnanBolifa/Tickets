@@ -11,24 +11,36 @@ import 'package:jwt_auth/main.dart';
 import 'package:jwt_auth/services/auth_service.dart';
 
 class ApiService {
-  Future<void> addReport(
-      String name, acc, phone, place, sector, List<int> checkbox) async {
-    final accessToken = await AuthService().getAccessToken();
-    final response = await http.post(Uri.parse(APIConfig.addUrl), body: {
+  Future<void> addReport(String name, acc, phone, place, sector) async {
+    List<int> x = [1, 2, 4];
+    List<int> y = [3, 5];
+
+    // Create a map to represent the request body
+    Map<String, dynamic> requestBody = {
       'name': name,
       'phone': phone,
       'account': acc,
       'place': place,
       'sector': sector,
-      'solution': checkbox.map((item) => item.toString()).toList(),
-    }, headers: {
-      'Authorization': 'Bearer $accessToken'
-    });
+      'note': 'xzxxxx',
+      'problem': x, 
+      'solutions': y,
+    };
+
+    final accessToken = await AuthService().getAccessToken();
+
+    final response = await http.post(Uri.parse(APIConfig.addUrl),
+        body: jsonEncode(requestBody), 
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json', 
+        });
 
     if (response.statusCode == 201) {
       print("Report added successfully");
     } else {
-      throw Exception('Failed to add report');
+      print("======================================================");
+      throw Exception('Failed to add report: ${response.statusCode}');
     }
   }
 
