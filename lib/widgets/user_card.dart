@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_auth/data/report_config.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class UserCard extends StatelessWidget {
   final Report user;
@@ -25,30 +26,55 @@ class UserCard extends StatelessWidget {
               colors: [Colors.blue, Colors.teal],
             ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: Row(
             children: [
-              Text(
-                user.userName,
-                style: const TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+              IconButton(
+                onPressed: () {
+                  _makePhoneCall(user.mobile);
+                },
+                icon: const Icon(
+                  Icons.phone,
+                  size: 30,
+                  color: Colors.white70,
                 ),
-                textDirection: TextDirection.rtl,
               ),
-              Text(
-                user.mobile,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.white,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      user.userName,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textDirection: TextDirection.rtl,
+                    ),
+                    Text(
+                      user.mobile,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                      textDirection: TextDirection.rtl,
+                    ),
+                  ],
                 ),
-                textDirection: TextDirection.rtl,
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _makePhoneCall(String phoneNumber) async {
+    final url = 'tel:$phoneNumber';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }
