@@ -41,7 +41,8 @@ class ApiService {
     }
   }
 
-  Future<void> updateReport(String name, acc, phone, place, sector) async {
+  Future<void> updateReport(
+      String name, acc, phone, place, sector, int? id) async {
     // Create a map to represent the request body
     Map<String, dynamic> requestBody = {
       'name': name,
@@ -49,12 +50,12 @@ class ApiService {
       'account': acc,
       'place': place,
       'sector': sector,
-      'note': 'xzxxxx',
     };
 
     final accessToken = await AuthService().getAccessToken();
-
-    final response = await http.put(Uri.parse(APIConfig.updateUrl),
+    print('======================');
+    print(id);
+    final response = await http.put(Uri.parse('${APIConfig.updateUrl}$id/edit'),
         body: jsonEncode(requestBody),
         headers: {
           'Authorization': 'Bearer $accessToken',
@@ -62,7 +63,7 @@ class ApiService {
         });
 
     if (response.statusCode == 200) {
-      print("Report added successfully");
+      print("updated updated successfully");
     } else {
       throw Exception('Failed to add report: ${response.statusCode}');
     }
@@ -106,10 +107,18 @@ class ApiService {
         for (var user in data) {
           final userName = user['name'] as String;
           final mobile = user['phone'] as String;
+          final acc = user['account'] as String;
+          final sector = user['sector'] as String;
+          final place = user['place'] as String;
+          final id = user['id'] as int;
+
           users.add(Report(
-            userName: userName,
-            mobile: mobile,
-          ));
+              userName: userName,
+              mobile: mobile,
+              acc: acc,
+              sector: sector,
+              place: place,
+              id: id));
         }
       } catch (e) {
         print('Error parsing JSON: $e');
@@ -156,29 +165,6 @@ class ApiService {
 
       return solutions;
     } else {
-      throw Exception('Failed to fetch item names');
-    }
-  }
-
-  Future<List<String>> getItemNames() async {
-    const baseUrl = 'http://10.255.255.15/api/ticket/problems/list';
-
-    final List<String> itemNames = [];
-
-    final response = await http.get(Uri.parse(baseUrl));
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseMap =
-          jsonDecode(utf8.decode(response.bodyBytes));
-      final List<dynamic> results = responseMap['results'];
-
-      for (var item in results) {
-        itemNames.add(item['name']);
-      }
-
-      return itemNames;
-    } else {
-      // Handle error
       throw Exception('Failed to fetch item names');
     }
   }
