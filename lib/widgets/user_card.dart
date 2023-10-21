@@ -14,55 +14,78 @@ class UserCard extends StatelessWidget {
       child: Card(
         elevation: 5,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
+          borderRadius: BorderRadius.circular(10.0),
         ),
         child: Container(
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Colors.blue, Colors.teal],
+          child: Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${user.acc!} - ${user.userName}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textDirection: TextDirection.ltr,
+                ),
+                Text(
+                  user.mobile,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textDirection: TextDirection.ltr,
+                ),
+                Text(
+                  "[${user.createdAt!}]",
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.black,
+                  ),
+                  textDirection: TextDirection.ltr,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  user.lastComment!,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black,
+                  ),
+                  textDirection: TextDirection.ltr,
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(3),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(5.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          color: Colors.grey[300],
+                        ),
+                        child: IconButton(
+                          onPressed: () {
+                            _makePhoneCall(user.mobile);
+                          },
+                          icon: const Icon(
+                            Icons.phone,
+                            size: 30,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  _makePhoneCall(user.mobile);
-                },
-                icon: const Icon(
-                  Icons.phone,
-                  size: 30,
-                  color: Colors.white70,
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      user.userName,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textDirection: TextDirection.rtl,
-                    ),
-                    Text(
-                      user.mobile,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
-                      textDirection: TextDirection.rtl,
-                    ),
-                  ],
-                ),
-              ),
-            ],
           ),
         ),
       ),
@@ -70,9 +93,9 @@ class UserCard extends StatelessWidget {
   }
 
   void _makePhoneCall(String phoneNumber) async {
-    final url = 'tel:$phoneNumber';
-    if (await canLaunch(url)) {
-      await launch(url);
+    final Uri url = Uri.parse('tel:$phoneNumber');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
     } else {
       throw 'Could not launch $url';
     }

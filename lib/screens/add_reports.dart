@@ -65,9 +65,9 @@ class _AddReportScreenState extends State<AddReport> {
           child: Column(
             children: [
               // Text Fields
-              textWidget(
+              textReports(
                 'الاسم',
-                'ادخل الاسم',
+                'خالد جمعة',
                 name,
                 (value) {
                   setState(() {
@@ -79,9 +79,9 @@ class _AddReportScreenState extends State<AddReport> {
               Row(
                 children: [
                   Expanded(
-                    child: textWidget(
+                    child: textReports(
                       'الهاتف',
-                      'ادخل رقم الهاتف',
+                      '091XXXXXXX',
                       name,
                       (value) {
                         setState(() {
@@ -92,9 +92,9 @@ class _AddReportScreenState extends State<AddReport> {
                   ),
                   const SizedBox(width: 8.0),
                   Expanded(
-                    child: textWidget(
+                    child: textReports(
                       'الحساب',
-                      'ادخل الحساب',
+                      'HTIX00000',
                       account,
                       (value) {
                         setState(() {
@@ -109,9 +109,9 @@ class _AddReportScreenState extends State<AddReport> {
               Row(
                 children: [
                   Expanded(
-                    child: textWidget(
+                    child: textReports(
                       'المكان',
-                      'ادخل مكان العميل',
+                      'ش طرابلس',
                       place,
                       (value) {
                         setState(() {
@@ -122,9 +122,9 @@ class _AddReportScreenState extends State<AddReport> {
                   ),
                   const SizedBox(width: 8.0),
                   Expanded(
-                    child: textWidget(
+                    child: textReports(
                       'البرج',
-                      'ZXX-SECX...',
+                      '... ZXX-SECX',
                       sector,
                       (value) {
                         setState(() {

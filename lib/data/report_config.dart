@@ -5,6 +5,8 @@ class Report {
   final String? acc;
   final String? sector;
   final String? place;
+  final String? createdAt;
+  final String? lastComment;
 
   Report(
       {required this.userName,
@@ -12,5 +14,7 @@ class Report {
       this.acc,
       this.sector,
       this.place,
-      this.id});
+      this.id,
+      this.createdAt,
+      this.lastComment});
 }

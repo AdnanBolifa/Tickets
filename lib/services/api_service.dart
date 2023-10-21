@@ -7,7 +7,7 @@ import 'package:jwt_auth/data/api_config.dart';
 import 'package:jwt_auth/data/problem_config.dart';
 import 'package:jwt_auth/data/report_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
-import 'package:jwt_auth/main.dart';
+import 'package:jwt_auth/screens/login.dart';
 import 'package:jwt_auth/services/auth_service.dart';
 
 class ApiService {
@@ -81,13 +81,12 @@ class ApiService {
       });
 
       if (response.statusCode == 401) {
-        // If the response is 401, attempt to get a new access token and retry.
         await authService.getNewAccessToken();
         return retryApiRequest();
       } else if (response.statusCode != 200) {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => const LoginApp(),
+            builder: (context) => const LoginPage(),
           ),
         );
         authService.logout();
@@ -111,6 +110,11 @@ class ApiService {
           final sector = user['sector'] as String;
           final place = user['place'] as String;
           final id = user['id'] as int;
+          final createdAt = user['created_at'] as String;
+
+          final lastComment = user['last_comment'] != null
+              ? user['last_comment']['comment']
+              : '';
 
           users.add(Report(
               userName: userName,
@@ -118,7 +122,9 @@ class ApiService {
               acc: acc,
               sector: sector,
               place: place,
-              id: id));
+              id: id,
+              createdAt: createdAt,
+              lastComment: lastComment));
         }
       } catch (e) {
         print('Error parsing JSON: $e');

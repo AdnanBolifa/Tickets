@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_auth/screens/home.dart';
 import 'package:jwt_auth/services/auth_service.dart';
+import 'package:jwt_auth/theme/colors.dart';
+import 'package:jwt_auth/widgets/text_field.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -18,47 +20,54 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login Page'),
-      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              TextField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
+              const SizedBox(
+                height: 100,
               ),
-              TextField(
-                controller: passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
+              Image.asset('lib/assets/hti_logo.png'),
+              const SizedBox(
+                height: 50,
               ),
+              const Text(
+                'تسجيل الدخول',
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(
+                height: 25,
+              ),
+              textField('إسم المستخدم', 'Hello, World', emailController),
+              textField('كلمة المرور', 'sudo su', passwordController),
               ElevatedButton(
                 onPressed: () async {
-                  final email = emailController.text;
-                  final password = passwordController.text;
-
                   try {
-                    // ignore: unused_local_variable
-                    final token = await AuthService().login(email, password);
-                    await AuthService().storeTokens(token);
-                    print(
-                        '=====================Logged in successfully ==================');
+                    final token = await AuthService()
+                        .login(emailController.text, passwordController.text);
 
-                    // Handle successful login, e.g., store the token and navigate to another screen.
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => const HomeScreen(),
                       ),
                     );
+                    await AuthService().storeTokens(token);
                   } catch (e) {
-                    // Handle login failure, e.g., show an error message.
                     print('Login failed: $e');
                   }
                 },
-                child: const Text('Login'),
+                style: ButtonStyle(
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(150, 50)),
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(AppColors.primaryColor),
+                ),
+                child: const Text(
+                  'دخول',
+                  style: TextStyle(fontSize: 16),
+                ),
               ),
             ],
           ),

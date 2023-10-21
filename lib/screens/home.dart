@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_auth/data/report_config.dart';
-import 'package:jwt_auth/main.dart';
 import 'package:jwt_auth/screens/add_reports.dart';
+import 'package:jwt_auth/screens/login.dart';
 import 'package:jwt_auth/screens/update_reports.dart';
 import 'package:jwt_auth/services/api_service.dart';
 import 'package:jwt_auth/services/auth_service.dart';
+import 'package:jwt_auth/theme/colors.dart';
 import '../widgets/user_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -54,25 +55,24 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reports'),
+        title: const Text("الرئيسية"),
         centerTitle: true,
-        backgroundColor: Colors.blue,
-        actions: [
-          IconButton(
-            onPressed: () => searchController.clear(),
-            icon: const Icon(Icons.menu),
-          ),
-        ],
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            AuthService().logout();
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => const LoginApp(),
-              ),
-            );
+        leading: PopupMenuButton(
+          icon: const Icon(Icons.menu),
+          onSelected: (value) {
+            if (value == 'logout') {
+              searchController.clear();
+              AuthService().logout();
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const LoginPage()));
+            }
           },
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'logout',
+              child: Text('تسجيل الخروج'),
+            ),
+          ],
         ),
       ),
       body: RefreshIndicator(
@@ -85,9 +85,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 controller: searchController,
                 onChanged: _filterUsers,
                 decoration: InputDecoration(
-                  labelText: 'Search Users',
+                  hintText: 'البحث عن كل شيء',
+                  labelText: 'بحث',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   prefixIcon: const Icon(Icons.search),
                 ),
@@ -127,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         },
-        backgroundColor: Colors.blue,
+        backgroundColor: AppColors.primaryColor,
         child: const Icon(Icons.add),
       ),
     );
