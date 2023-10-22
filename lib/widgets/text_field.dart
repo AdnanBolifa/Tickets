@@ -38,24 +38,33 @@ Widget textReports(
 }
 
 Widget textField(
-    String label, String hint, TextEditingController onChangedCallback) {
+  String label,
+  String hint,
+  TextEditingController onChangedCallback, {
+  double? width,
+  double? height,
+}) {
   return Column(
     children: [
       Directionality(
         textDirection: TextDirection.rtl,
-        child: TextField(
-          controller: onChangedCallback,
-          decoration: InputDecoration(
-            labelText: label,
-            hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
-            hintText: hint,
-            border: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
+        child: SizedBox(
+          width: width, // Specify the width if provided
+          height: height, // Specify the height if provided
+          child: TextField(
+            controller: onChangedCallback,
+            decoration: InputDecoration(
+              labelText: label,
+              hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
+              hintText: hint,
+              border: const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+              ),
             ),
           ),
         ),
       ),
-      const SizedBox(height: 16.0),
+      const SizedBox(height: 10.0), // Add a SizedBox for spacing
     ],
   );
 }

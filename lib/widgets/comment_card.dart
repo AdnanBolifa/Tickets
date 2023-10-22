@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:jwt_auth/data/report_config.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:jwt_auth/data/comment_config.dart';
 
 class CommentCard extends StatelessWidget {
-  final Report user;
+  final CommentData comment;
 
-  const CommentCard({Key? key, required this.user}) : super(key: key);
+  const CommentCard({Key? key, required this.comment}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +21,7 @@ class CommentCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${user.acc!} - ${user.userName}',
+                '${comment.comment}',
                 style: const TextStyle(
                   fontSize: 18,
                   color: Colors.black,
@@ -31,7 +30,7 @@ class CommentCard extends StatelessWidget {
                 textDirection: TextDirection.ltr,
               ),
               Text(
-                user.mobile,
+                '${comment.createdAt}',
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.black,
@@ -39,63 +38,10 @@ class CommentCard extends StatelessWidget {
                 ),
                 textDirection: TextDirection.ltr,
               ),
-              Text(
-                "[${user.createdAt!}]",
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.black,
-                ),
-                textDirection: TextDirection.ltr,
-              ),
-              const SizedBox(
-                height: 5,
-              ),
-              Text(
-                user.lastComment!,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black,
-                ),
-                textDirection: TextDirection.ltr,
-              ),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: const EdgeInsets.all(3),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(5.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        color: Colors.grey[300],
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          _makePhoneCall(user.mobile);
-                        },
-                        icon: const Icon(
-                          Icons.phone,
-                          size: 30,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
         ),
       ),
     );
-  }
-
-  void _makePhoneCall(String phoneNumber) async {
-    final Uri url = Uri.parse('tel:$phoneNumber');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    } else {
-      throw 'Could not launch $url';
-    }
   }
 }
