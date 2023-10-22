@@ -6,10 +6,10 @@ import 'package:jwt_auth/screens/update_reports.dart';
 import 'package:jwt_auth/services/api_service.dart';
 import 'package:jwt_auth/services/auth_service.dart';
 import 'package:jwt_auth/theme/colors.dart';
-import '../widgets/user_card.dart';
+import '../widgets/ticket_card.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key});
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -97,8 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
               child: userList.isEmpty
                   ? const Center(
-                      child:
-                          CircularProgressIndicator(), // Show a loading indicator
+                      child: CircularProgressIndicator(),
                     )
                   : ListView.builder(
                       itemCount: userList.length,
@@ -112,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             );
                           },
-                          child: UserCard(user: userList[index]),
+                          child: TicketCard(user: userList[index]),
                         );
                       },
                     ),

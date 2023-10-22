@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:jwt_auth/data/location_data.dart';
 import 'package:jwt_auth/data/problem_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
 import 'package:jwt_auth/services/api_service.dart';
+import 'package:jwt_auth/services/location_services.dart';
 import 'package:jwt_auth/widgets/text_field.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class AddReport extends StatefulWidget {
-  const AddReport({super.key});
+  const AddReport({Key? key}) : super(key: key);
 
   @override
   _AddReportScreenState createState() => _AddReportScreenState();
 }
 
 class _AddReportScreenState extends State<AddReport> {
-  // Declare variables to store user input
   String name = '';
   String account = '';
   String phone = '';
@@ -48,6 +49,10 @@ class _AddReportScreenState extends State<AddReport> {
       });
     });
   }
+
+  TextEditingController location = TextEditingController();
+  final LocationService locationService = LocationService();
+  LocationData? locationData;
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +129,7 @@ class _AddReportScreenState extends State<AddReport> {
                   Expanded(
                     child: textReports(
                       'البرج',
-                      '... ZXX-SECX',
+                      'س',
                       sector,
                       (value) {
                         setState(() {
@@ -135,24 +140,54 @@ class _AddReportScreenState extends State<AddReport> {
                   ),
                 ],
               ),
+              Row(
+                children: [
+                  SizedBox(
+                    width: 120,
+                    height: 55,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        locationData = await locationService.getUserLocation();
+                        location.text =
+                            '${locationData!.latitude}, ${locationData!.longitude}';
+                      },
+                      style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(60, 80),
+                          backgroundColor: Colors.grey[300]),
+                      child: const Center(
+                        // Center the text
+                        child: Text(
+                          "جلب احداثيات الموقع",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Colors.black, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8.0),
+                  Expanded(
+                    child: Directionality(
+                      textDirection: TextDirection.rtl,
+                      child: TextField(
+                        controller: location,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          labelText: 'احداثيات الموقع',
+                          hintStyle:
+                              TextStyle(fontSize: 14, color: Colors.grey),
+                          hintText: '35.2345, 89.01234',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
 
               const SizedBox(height: 15.0),
-
-              Container(
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                    color: Colors.blueGrey,
-                    borderRadius: BorderRadius.circular(20)),
-                child: const Center(
-                  child: Text(
-                    'المشاكل',
-                    style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
 
               /// Checkboxes - Group Problems
               const SizedBox(height: 15.0),

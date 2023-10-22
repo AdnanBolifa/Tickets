@@ -29,7 +29,6 @@ class _UpdateReportScreenState extends State<UpdateReport> {
   @override
   void initState() {
     super.initState();
-    // Initialize the controller with the value from the 'user' object
     name = nameController.text = widget.user.userName;
     phone = phoneController.text = widget.user.mobile;
     place = placeController.text = widget.user.place!;
@@ -40,8 +39,11 @@ class _UpdateReportScreenState extends State<UpdateReport> {
 
   @override
   void dispose() {
-    // Dispose of the controller when the widget is disposed to avoid memory leaks.
     nameController.dispose();
+    phoneController.dispose();
+    placeController.dispose();
+    sectorController.dispose();
+    accController.dispose();
     super.dispose();
   }
 
@@ -234,7 +236,6 @@ class _UpdateReportScreenState extends State<UpdateReport> {
               ),
 
               const SizedBox(height: 16.0),
-
               ElevatedButton(
                 onPressed: () {
                   ApiService()
