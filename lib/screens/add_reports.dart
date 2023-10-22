@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:jwt_auth/data/location_data.dart';
 import 'package:jwt_auth/data/problem_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
@@ -335,7 +334,7 @@ class _AddReportScreenState extends State<AddReport> {
                           labelText: 'احداثيات الموقع',
                           hintStyle:
                               TextStyle(fontSize: 14, color: Colors.grey),
-                          hintText: '35.2345, 89.01234',
+                          hintText: 'xx.xxxx, xx.xxxx',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(5)),
                           ),
@@ -348,26 +347,6 @@ class _AddReportScreenState extends State<AddReport> {
               const SizedBox(
                 height: 15,
               ),
-              if (locationData != null)
-                Container(
-                  decoration: BoxDecoration(color: Colors.grey),
-                  height: 200, // Set the height as needed
-                  child: GoogleMap(
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng(
-                          locationData!.latitude!, locationData!.longitude!),
-                      zoom: 15.0,
-                    ),
-                    markers: {
-                      Marker(
-                        markerId: MarkerId('MyLocation'),
-                        position: LatLng(
-                            locationData!.latitude!, locationData!.longitude!),
-                        infoWindow: InfoWindow(title: 'My Location'),
-                      ),
-                    },
-                  ),
-                ),
 
               const SizedBox(height: 16.0),
 
