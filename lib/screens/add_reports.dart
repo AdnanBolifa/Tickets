@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:jwt_auth/data/location_data.dart';
 import 'package:jwt_auth/data/problem_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
@@ -53,6 +54,9 @@ class _AddReportScreenState extends State<AddReport> {
   TextEditingController location = TextEditingController();
   final LocationService locationService = LocationService();
   LocationData? locationData;
+
+  List<String> textTrueProblem = [];
+  List<String> textTrueSolution = [];
 
   @override
   Widget build(BuildContext context) {
@@ -140,6 +144,161 @@ class _AddReportScreenState extends State<AddReport> {
                   ),
                 ],
               ),
+              const SizedBox(height: 15),
+
+              SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: 100, // Set the default minimum height to 100
+                  ),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Stack(
+                      children: [
+                        const Align(
+                          alignment: Alignment.topCenter,
+                          child: Text(
+                            'المشاكل',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 15),
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: textTrueProblem.length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                dense: true,
+                                leading: Container(
+                                  width: 24,
+                                  height: 24,
+                                  alignment: Alignment.center,
+                                  child: const Icon(
+                                    Icons.fiber_manual_record,
+                                    size: 12,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                title: Text(
+                                  textTrueProblem[index],
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        Positioned(
+                          right: 10,
+                          bottom: 10,
+                          child: Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: IconButton(
+                              onPressed: () {
+                                _showBottomSheetProblem(context);
+                              },
+                              icon: const Icon(Icons.edit, color: Colors.black),
+                              iconSize: 24,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // Checkboxes - Group Solutions
+              const SizedBox(height: 15.0),
+
+              SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: 100, // Set the default minimum height to 100
+                  ),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Stack(
+                      children: [
+                        const Align(
+                          alignment: Alignment.topCenter,
+                          child: Text(
+                            'الحلول',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 15),
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: textTrueSolution.length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                dense: true,
+                                leading: Container(
+                                  width: 24,
+                                  height: 24,
+                                  alignment: Alignment.center,
+                                  child: const Icon(
+                                    Icons.fiber_manual_record,
+                                    size: 12,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                title: Text(
+                                  textTrueSolution[index],
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        Positioned(
+                          right: 10,
+                          bottom: 10,
+                          child: Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: IconButton(
+                              onPressed: () {
+                                _showBottomSheetSolution(context);
+                              },
+                              icon: const Icon(Icons.edit, color: Colors.black),
+                              iconSize: 24,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(
+                height: 15,
+              ),
               Row(
                 children: [
                   SizedBox(
@@ -160,7 +319,7 @@ class _AddReportScreenState extends State<AddReport> {
                           "جلب احداثيات الموقع",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              color: Colors.black, fontWeight: FontWeight.bold),
+                              color: Colors.black, fontWeight: FontWeight.w300),
                         ),
                       ),
                     ),
@@ -186,90 +345,29 @@ class _AddReportScreenState extends State<AddReport> {
                   ),
                 ],
               ),
-
-              const SizedBox(height: 15.0),
-
-              /// Checkboxes - Group Problems
-              const SizedBox(height: 15.0),
-
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200], // Gray background color
-                  border: Border.all(color: Colors.grey), // Border color
-                  borderRadius: BorderRadius.circular(8.0), // Border radius
-                ),
-                child: problemsCheckbox.isEmpty
-                    ? const Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : SizedBox(
-                        height: 200, // Adjust the height as needed
-                        child: ListView.builder(
-                          itemCount: problemsCheckbox.length,
-                          itemBuilder: (context, index) {
-                            return CheckboxListTile(
-                              title: Text(problemsCheckbox[index].name),
-                              value: problemCheckboxGroup[index],
-                              onChanged: (value) {
-                                setState(() {
-                                  problemCheckboxGroup[index] = value!;
-                                });
-                              },
-                            );
-                          },
-                        ),
-                      ),
+              const SizedBox(
+                height: 15,
               ),
-
-              // Checkboxes - Group Solutions
-              const SizedBox(height: 15.0),
-
-              Container(
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                    color: Colors.blueGrey,
-                    borderRadius: BorderRadius.circular(20)),
-                child: const Center(
-                  child: Text(
-                    'الحلول',
-                    style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
+              if (locationData != null)
+                Container(
+                  decoration: BoxDecoration(color: Colors.grey),
+                  height: 200, // Set the height as needed
+                  child: GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(
+                          locationData!.latitude!, locationData!.longitude!),
+                      zoom: 15.0,
+                    ),
+                    markers: {
+                      Marker(
+                        markerId: MarkerId('MyLocation'),
+                        position: LatLng(
+                            locationData!.latitude!, locationData!.longitude!),
+                        infoWindow: InfoWindow(title: 'My Location'),
+                      ),
+                    },
                   ),
                 ),
-              ),
-
-              const SizedBox(height: 15.0),
-
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200], // Gray background color
-                  border: Border.all(color: Colors.grey), // Border color
-                  borderRadius: BorderRadius.circular(8.0), // Border radius
-                ),
-                child: solutionsCheckbox.isEmpty
-                    ? const Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : SizedBox(
-                        height: 200,
-                        child: ListView.builder(
-                          itemCount: solutionsCheckbox.length,
-                          itemBuilder: (context, index) {
-                            return CheckboxListTile(
-                              title: Text(solutionsCheckbox[index].name),
-                              value: solutionCheckboxGroup[index],
-                              onChanged: (value) {
-                                setState(() {
-                                  solutionCheckboxGroup[index] = value!;
-                                });
-                              },
-                            );
-                          },
-                        ),
-                      ),
-              ),
 
               const SizedBox(height: 16.0),
 
@@ -325,5 +423,99 @@ class _AddReportScreenState extends State<AddReport> {
     ApiService().addReport(name, account, phone, place, sector,
         selectedProblemIds, selectedSolutionIds);
     Navigator.pop(context);
+  }
+
+  void _updateSelectedProblems() {
+    textTrueProblem.clear();
+    for (int index = 0; index < problemsCheckbox.length; index++) {
+      if (problemCheckboxGroup[index]) {
+        textTrueProblem.add(problemsCheckbox[index].name);
+      }
+    }
+  }
+
+  void _updateSelectedSolution() {
+    textTrueSolution.clear();
+    for (int index = 0; index < solutionsCheckbox.length; index++) {
+      if (solutionCheckboxGroup[index]) {
+        textTrueSolution.add(solutionsCheckbox[index].name);
+      }
+    }
+  }
+
+  void _showBottomSheetProblem(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return ListView.builder(
+              itemCount: problemsCheckbox.length,
+              itemBuilder: (BuildContext context, int index) {
+                return CheckboxListTile(
+                  title: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          problemsCheckbox[index].name,
+                          textAlign: TextAlign.right,
+                        ),
+                      ),
+                    ],
+                  ),
+                  value: problemCheckboxGroup[index],
+                  onChanged: (value) {
+                    setState(() {
+                      problemCheckboxGroup[index] = value!;
+                    });
+                  },
+                );
+              },
+            );
+          },
+        );
+      },
+    ).then((result) {
+      _updateSelectedProblems();
+      setState(() {});
+    });
+  }
+
+  void _showBottomSheetSolution(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return ListView.builder(
+              itemCount: solutionsCheckbox.length,
+              itemBuilder: (BuildContext context, int index) {
+                return CheckboxListTile(
+                  title: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          solutionsCheckbox[index].name,
+                          textAlign: TextAlign.right,
+                        ),
+                      ),
+                    ],
+                  ),
+                  value: solutionCheckboxGroup[index],
+                  onChanged: (value) {
+                    setState(() {
+                      solutionCheckboxGroup[index] = value!;
+                    });
+                  },
+                );
+              },
+            );
+          },
+        );
+      },
+    ).then((result) {
+      _updateSelectedSolution();
+      setState(() {});
+    });
   }
 }
