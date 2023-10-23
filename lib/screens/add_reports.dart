@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:jwt_auth/data/location_data.dart';
+import 'package:jwt_auth/data/location_config.dart';
 import 'package:jwt_auth/data/problem_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
 import 'package:jwt_auth/services/api_service.dart';
 import 'package:jwt_auth/services/location_services.dart';
+import 'package:jwt_auth/theme/colors.dart';
 import 'package:jwt_auth/widgets/text_field.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class AddReport extends StatefulWidget {
   const AddReport({Key? key}) : super(key: key);
@@ -318,7 +318,9 @@ class _AddReportScreenState extends State<AddReport> {
                           "جلب احداثيات الموقع",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              color: Colors.black, fontWeight: FontWeight.w300),
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w300),
                         ),
                       ),
                     ),
@@ -351,30 +353,18 @@ class _AddReportScreenState extends State<AddReport> {
               const SizedBox(height: 16.0),
 
               ElevatedButton(
-                onPressed: () {
-                  if (name.isNotEmpty) {
-                    _submitReport();
-                  } else {
-                    Fluttertoast.showToast(
-                      msg: 'يرجى ادخال الاسم',
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      timeInSecForIosWeb: 1,
-                      backgroundColor: Colors.black,
-                      textColor: Colors.white,
-                    );
-                  }
+                onPressed: () async {
+                  _submitReport();
                 },
                 style: ButtonStyle(
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                  ),
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(100, 50)),
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(AppColors.primaryColor),
                 ),
                 child: const Text(
-                  'إرسال',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  'إضافة',
+                  style: TextStyle(fontSize: 16),
                 ),
               ),
             ],

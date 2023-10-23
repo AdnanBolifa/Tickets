@@ -23,7 +23,7 @@ class _UpdateReportScreenState extends State<UpdateReport> {
   String place = '';
   String sector = '';
   List<CommentData>? comments;
-  late int? id;
+  late int id;
 
   TextEditingController nameController = TextEditingController();
   TextEditingController accController = TextEditingController();
@@ -66,8 +66,13 @@ class _UpdateReportScreenState extends State<UpdateReport> {
             ),
             child: ElevatedButton(
               onPressed: () {
-                ApiService()
-                    .updateReport(name, account, phone, place, sector, id);
+                ApiService().updateReport(
+                    name: nameController.text,
+                    acc: accController.text,
+                    phone: phoneController.text,
+                    place: placeController.text,
+                    sector: sectorController.text,
+                    id: id);
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
@@ -82,7 +87,7 @@ class _UpdateReportScreenState extends State<UpdateReport> {
           ),
         ],
         title: const Text(
-          'إضافة بلاغ',
+          'تعديل بلاغ',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -98,8 +103,7 @@ class _UpdateReportScreenState extends State<UpdateReport> {
               Row(
                 children: [
                   Expanded(
-                    child: textField(
-                        'الهاتف', '09commentscommentsXX', phoneController),
+                    child: textField('الهاتف', '09XXXXXXXX', phoneController),
                   ),
                   const SizedBox(width: 8.0),
                   Expanded(
@@ -141,7 +145,19 @@ class _UpdateReportScreenState extends State<UpdateReport> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton(
-                    onPressed: () async {},
+                    onPressed: () async {
+                      ApiService().updateReport(
+                          comment: commentController.text, id: id);
+
+                      setState(() {
+                        comments?.add(CommentData(
+                            ticket: 0,
+                            comment: commentController.text,
+                            createdAt: 'الأن',
+                            createdBy: 'انت'));
+                      });
+                      commentController.clear();
+                    },
                     style: ButtonStyle(
                       minimumSize:
                           MaterialStateProperty.all<Size>(const Size(50, 50)),

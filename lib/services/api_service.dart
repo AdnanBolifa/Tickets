@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_auth/data/api_config.dart';
+import 'package:jwt_auth/data/comment_config.dart';
 import 'package:jwt_auth/data/problem_config.dart';
 import 'package:jwt_auth/data/report_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
@@ -17,7 +18,6 @@ class ApiService {
       'account': acc,
       'place': place,
       'sector': sector,
-      'note': 'xzxxxx',
       'problem': problems,
       'solutions': solution,
     };
@@ -26,16 +26,31 @@ class ApiService {
   }
 
   Future<void> updateReport(
-      String name, acc, phone, place, sector, int? id) async {
+      {String? name,
+      acc,
+      phone,
+      place,
+      sector,
+      int? id,
+      String? comment,
+      String? ticket}) async {
     final requestBody = {
-      'name': name,
-      'phone': phone,
-      'account': acc,
-      'place': place,
-      'sector': sector,
+      if (name != null) 'name': name,
+      if (acc != null) 'account': acc,
+      if (phone != null) 'phone': phone,
+      if (place != null) 'place': place,
+      if (sector != null) 'sector': sector,
+      if (comment != null) 'comment': comment,
+      'ticket': id
     };
 
-    await _performPutRequest('${APIConfig.updateUrl}$id/edit', requestBody);
+    if (id == null) {
+      throw 'Id not provided';
+    } else if (comment == null) {
+      await _performPutRequest('${APIConfig.updateUrl}$id/edit', requestBody);
+    } else {
+      await _performPostRequest('${APIConfig.updateUrl}update', requestBody);
+    }
   }
 
   Future<List<Report>> getReports(context) async {
@@ -52,11 +67,11 @@ class ApiService {
         final users = data.map((user) => Report.fromJson(user)).toList();
         return users;
       } catch (e) {
-        debugPrint('Error parsing JSON: $e');
+        print('Error parsing JSON: $e');
       }
     } else {
-      debugPrint('Request failed with status code: ${response.statusCode}');
-      debugPrint('Response content: ${response.body}');
+      print('Request failed with status code: ${response.statusCode}');
+      print('Response content: ${response.body}');
     }
 
     return [];
@@ -65,6 +80,13 @@ class ApiService {
   Future<List<Problem>> fetchProblems() async {
     final response = await _performGetRequest(APIConfig.problemsUrl);
     return _parseProblemsResponse(response);
+  }
+
+  Future<List<CommentData>> fetchComments() async {
+    final authService = AuthService();
+    final response = await _performAuthenticatedGetRequest(
+        APIConfig.reportsUrl, authService);
+    return _parseCommentsResponse(response);
   }
 
   Future<List<Solution>> fetchSolutions() async {
@@ -92,7 +114,7 @@ class ApiService {
         'Content-Type': 'application/json',
       },
     );
-
+    print(body);
     if (response.statusCode == 201) {
       print("Data added successfully");
     } else {
@@ -148,6 +170,19 @@ class ApiService {
       return problems;
     } else {
       throw Exception('Failed to fetch problems');
+    }
+  }
+
+  List<CommentData> _parseCommentsResponse(http.Response response) {
+    if (response.statusCode == 200) {
+      final responseMap = jsonDecode(utf8.decode(response.bodyBytes));
+      final List<dynamic> results = responseMap['results'];
+
+      final comments =
+          results.map((item) => CommentData.fromJson(item)).toList();
+      return comments;
+    } else {
+      throw Exception('Failed to fetch comments');
     }
   }
 

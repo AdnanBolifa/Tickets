@@ -1,7 +1,7 @@
 import 'package:jwt_auth/data/comment_config.dart';
 
 class Report {
-  final int? id;
+  final int id;
   final String userName;
   final String mobile;
   final String? acc;
@@ -17,7 +17,7 @@ class Report {
       this.acc,
       this.sector,
       this.place,
-      this.id,
+      required this.id,
       this.createdAt,
       this.lastComment,
       this.comments});

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jwt_auth/data/comment_config.dart';
 
 class CommentCard extends StatelessWidget {
-  final CommentData comment;
+  final CommentData? comment;
 
   const CommentCard({Key? key, required this.comment}) : super(key: key);
 
@@ -21,7 +21,7 @@ class CommentCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${comment.comment}',
+                comment?.comment ?? "",
                 style: const TextStyle(
                   fontSize: 18,
                   color: Colors.black,
@@ -33,7 +33,7 @@ class CommentCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '[${comment.createdAt}]',
+                    '[${comment?.createdAt ?? ""}]',
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.black,
@@ -42,7 +42,7 @@ class CommentCard extends StatelessWidget {
                     textDirection: TextDirection.ltr,
                   ),
                   Text(
-                    comment.createdBy!,
+                    comment?.createdBy ?? "",
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
