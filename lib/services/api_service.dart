@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_auth/data/api_config.dart';
-import 'package:jwt_auth/data/comment_config.dart';
 import 'package:jwt_auth/data/problem_config.dart';
 import 'package:jwt_auth/data/report_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
@@ -10,7 +9,8 @@ import 'package:jwt_auth/screens/login.dart';
 import 'package:jwt_auth/services/auth_service.dart';
 
 class ApiService {
-  Future<void> addReport(String name, acc, phone, place, sector, List<int> problems, List<int> solution) async {
+  Future<void> addReport(String name, acc, phone, place, sector,
+      List<int> problems, List<int> solution) async {
     final requestBody = {
       'name': name,
       'phone': phone,
@@ -25,7 +25,8 @@ class ApiService {
     await _performPostRequest(APIConfig.addUrl, requestBody);
   }
 
-  Future<void> updateReport(String name, acc, phone, place, sector, int? id) async {
+  Future<void> updateReport(
+      String name, acc, phone, place, sector, int? id) async {
     final requestBody = {
       'name': name,
       'phone': phone,
@@ -40,7 +41,8 @@ class ApiService {
   Future<List<Report>> getReports(context) async {
     final authService = AuthService();
 
-    final response = await _performAuthenticatedGetRequest(APIConfig.reportsUrl, authService, context);
+    final response = await _performAuthenticatedGetRequest(
+        APIConfig.reportsUrl, authService, context);
 
     if (response.statusCode == 200) {
       try {
@@ -50,11 +52,11 @@ class ApiService {
         final users = data.map((user) => Report.fromJson(user)).toList();
         return users;
       } catch (e) {
-        print('Error parsing JSON: $e');
+        debugPrint('Error parsing JSON: $e');
       }
     } else {
-      print('Request failed with status code: ${response.statusCode}');
-      print('Response content: ${response.body}');
+      debugPrint('Request failed with status code: ${response.statusCode}');
+      debugPrint('Response content: ${response.body}');
     }
 
     return [];
@@ -65,17 +67,10 @@ class ApiService {
     return _parseProblemsResponse(response);
   }
 
-  Future<List<CommentData>> fetchComments() async {
-    final authService = AuthService();
-    final response = await _performAuthenticatedGetRequest(APIConfig.reportsUrl, authService);
-    return _parseCommentsResponse(response);
-  }
-
   Future<List<Solution>> fetchSolutions() async {
     final response = await _performGetRequest(APIConfig.solutionsUrl);
     return _parseSolutionsResponse(response);
   }
-
 
   //helper functions
   Future<http.Response> _performGetRequest(String url) async {
@@ -86,7 +81,7 @@ class ApiService {
       throw Exception('Failed to fetch data');
     }
   }
-  
+
   Future<void> _performPostRequest(String url, dynamic body) async {
     final accessToken = await AuthService().getAccessToken();
     final response = await http.post(
@@ -123,7 +118,9 @@ class ApiService {
     }
   }
 
-  Future<http.Response> _performAuthenticatedGetRequest(String url, AuthService authService, [BuildContext? context]) async {
+  Future<http.Response> _performAuthenticatedGetRequest(
+      String url, AuthService authService,
+      [BuildContext? context]) async {
     final accessToken = await authService.getAccessToken();
     final response = await http.get(Uri.parse(url), headers: {
       'Authorization': 'Bearer $accessToken',
@@ -151,18 +148,6 @@ class ApiService {
       return problems;
     } else {
       throw Exception('Failed to fetch problems');
-    }
-  }
-
-  List<CommentData> _parseCommentsResponse(http.Response response) {
-    if (response.statusCode == 200) {
-      final responseMap = jsonDecode(utf8.decode(response.bodyBytes));
-      final List<dynamic> results = responseMap['results'];
-
-      final comments = results.map((item) => CommentData.fromJson(item)).toList();
-      return comments;
-    } else {
-      throw Exception('Failed to fetch comments');
     }
   }
 
