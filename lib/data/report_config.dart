@@ -9,7 +9,7 @@ class Report {
   final String? place;
   final String? createdAt;
   final String? lastComment;
-  final List<CommentData>? comments; // Changed to a list of strings
+  final List<CommentData>? comments;
 
   Report(
       {required this.userName,

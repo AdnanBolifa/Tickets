@@ -3,6 +3,7 @@ import 'package:jwt_auth/data/comment_config.dart';
 import 'package:jwt_auth/data/report_config.dart';
 import 'package:jwt_auth/services/api_service.dart';
 import 'package:jwt_auth/theme/colors.dart';
+import 'package:jwt_auth/widgets/comment_card.dart';
 import 'package:jwt_auth/widgets/text_field.dart';
 
 class UpdateReport extends StatefulWidget {
@@ -21,7 +22,7 @@ class _UpdateReportScreenState extends State<UpdateReport> {
   String phone = '';
   String place = '';
   String sector = '';
-  List<CommentData>? xxx;
+  List<CommentData>? comments;
   late int? id;
 
   TextEditingController nameController = TextEditingController();
@@ -29,6 +30,7 @@ class _UpdateReportScreenState extends State<UpdateReport> {
   TextEditingController phoneController = TextEditingController();
   TextEditingController sectorController = TextEditingController();
   TextEditingController placeController = TextEditingController();
+  TextEditingController commentController = TextEditingController();
 
   @override
   void initState() {
@@ -38,7 +40,7 @@ class _UpdateReportScreenState extends State<UpdateReport> {
     place = placeController.text = widget.user.place!;
     sector = sectorController.text = widget.user.sector!;
     account = accController.text = widget.user.acc!;
-    xxx = widget.user.comments;
+    comments = widget.user.comments;
     id = widget.user.id;
   }
 
@@ -56,6 +58,29 @@ class _UpdateReportScreenState extends State<UpdateReport> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          Container(
+            margin: const EdgeInsets.all(8.0), // Margin for spacing
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                ApiService()
+                    .updateReport(name, account, phone, place, sector, id);
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+              child: const Text(
+                'حفظ',
+                style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w300),
+              ),
+            ),
+          ),
+        ],
         title: const Text(
           'إضافة بلاغ',
           style: TextStyle(fontWeight: FontWeight.bold),
@@ -73,7 +98,8 @@ class _UpdateReportScreenState extends State<UpdateReport> {
               Row(
                 children: [
                   Expanded(
-                    child: textField('الهاتف', '09XXXXXXXX', phoneController),
+                    child: textField(
+                        'الهاتف', '09commentscommentsXX', phoneController),
                   ),
                   const SizedBox(width: 8.0),
                   Expanded(
@@ -95,41 +121,43 @@ class _UpdateReportScreenState extends State<UpdateReport> {
 
               const SizedBox(height: 16.0),
 
-              ElevatedButton(
-                onPressed: () async {
-                  ApiService()
-                      .updateReport(name, account, phone, place, sector, id);
-                  Navigator.pop(context);
-                },
-                style: ButtonStyle(
-                  minimumSize:
-                      MaterialStateProperty.all<Size>(const Size(80, 30)),
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(AppColors.primaryColor),
-                ),
-                child: const Text(
-                  'تحديث',
-                  style: TextStyle(fontSize: 16),
-                ),
+              SizedBox(
+                height: 400,
+                child: comments!.isEmpty
+                    ? const Center(
+                        child: Text(
+                        'لايوجد تعليقات',
+                        style: TextStyle(fontSize: 16),
+                      ))
+                    : ListView.builder(
+                        itemCount: comments!.length,
+                        itemBuilder: (context, index) {
+                          return CommentCard(comment: comments![index]);
+                        },
+                      ),
               ),
-
-              ElevatedButton(
-                onPressed: () async {
-                  for (var element in xxx!) {
-                    print(
-                        '${element.comment} created by: ${element.createdBy}');
-                  }
-                },
-                style: ButtonStyle(
-                  minimumSize:
-                      MaterialStateProperty.all<Size>(const Size(80, 30)),
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(AppColors.primaryColor),
-                ),
-                child: const Text(
-                  'xxx',
-                  style: TextStyle(fontSize: 16),
-                ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {},
+                    style: ButtonStyle(
+                      minimumSize:
+                          MaterialStateProperty.all<Size>(const Size(50, 50)),
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                          AppColors.primaryColor),
+                    ),
+                    child: const Text(
+                      'اضافة تعليق',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: textField('تعليق', 'اضف تعليق', commentController),
+                  ),
+                ],
               ),
             ],
           ),

@@ -29,14 +29,23 @@ class CommentCard extends StatelessWidget {
                 ),
                 textDirection: TextDirection.ltr,
               ),
-              Text(
-                '${comment.createdAt}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                  fontWeight: FontWeight.w500,
-                ),
-                textDirection: TextDirection.ltr,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '[${comment.createdAt}]',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textDirection: TextDirection.ltr,
+                  ),
+                  Text(
+                    comment.createdBy!,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
             ],
           ),
