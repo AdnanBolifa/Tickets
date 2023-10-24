@@ -6,7 +6,7 @@ class Solution {
 
   factory Solution.fromJson(Map<String, dynamic> json) {
     return Solution(
-      id: json['id'],
+      id: json['id'] as int,
       name: json['solution'],
     );
   }

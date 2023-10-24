@@ -18,7 +18,7 @@ void main() async {
     MaterialApp(
       debugShowCheckedModeBanner: false,
       home: accesstoken != null ? const HomeScreen() : const LoginPage(),
-      theme: customTheme, // Apply the custom theme here
+      theme: customTheme,
     ),
   );
 }

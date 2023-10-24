@@ -26,14 +26,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _fetchReports();
   }
 
-  void _fetchReports() async {
-    final users = await ApiService().getReports(context);
-    setState(() {
-      userList = users;
-      originalList = userList;
-    });
-  }
-
   void _filterUsers(String query) {
     setState(() {
       if (query.isEmpty) {
@@ -46,9 +38,25 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> _handleRefresh() async {
-    await Future.delayed(const Duration(seconds: 2));
-    _fetchReports();
+  bool isRefreshing = false;
+  Future<void> _fetchReports() async {
+    setState(() {
+      isRefreshing = true;
+    });
+
+    try {
+      final users = await ApiService().getReports(context);
+      setState(() {
+        userList = users;
+        originalList = userList;
+      });
+    } catch (e) {
+      print('Error while refreshing data: $e');
+    } finally {
+      setState(() {
+        isRefreshing = false;
+      });
+    }
   }
 
   @override
@@ -76,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       body: RefreshIndicator(
-        onRefresh: _handleRefresh,
+        onRefresh: _fetchReports,
         child: Column(
           children: [
             Padding(

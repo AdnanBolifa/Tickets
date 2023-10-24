@@ -6,7 +6,7 @@ class Problem {
 
   factory Problem.fromJson(Map<String, dynamic> json) {
     return Problem(
-      id: json['id'],
+      id: json['id'] as int,
       name: json['name'],
     );
   }
