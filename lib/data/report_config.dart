@@ -10,17 +10,21 @@ class Report {
   final String? createdAt;
   final String? lastComment;
   final List<CommentData>? comments;
+  final List<int>? problems;
+  final List<int>? solutions;
 
   Report(
       {required this.userName,
       required this.mobile,
+      required this.id,
       this.acc,
       this.sector,
       this.place,
-      required this.id,
       this.createdAt,
       this.lastComment,
-      this.comments});
+      this.comments,
+      this.problems,
+      this.solutions});
 
   factory Report.fromJson(Map<String, dynamic> json) {
     // Parse the comments list
@@ -34,6 +38,22 @@ class Report {
           .cast<CommentData>());
     }
 
+    // Parse the problems list
+    final List<int> problemsList = [];
+    final problemsJson = json['problem'];
+    if (problemsJson is List) {
+      problemsList
+          .addAll(problemsJson.where((problem) => problem is int).cast<int>());
+    }
+
+    // Parse the solutions list as an array of integers
+    final List<int> solutionsList = [];
+    final solutionsJson = json['solutions'];
+    if (solutionsJson is List) {
+      solutionsList.addAll(
+          solutionsJson.where((solution) => solution is int).cast<int>());
+    }
+
     return Report(
       id: json['id'] as int,
       userName: json['name'],
@@ -45,6 +65,8 @@ class Report {
       lastComment:
           json['last_comment'] != null ? json['last_comment']['comment'] : '',
       comments: commentsList,
+      problems: problemsList,
+      solutions: solutionsList,
     );
   }
 }

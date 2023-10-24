@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_auth/data/api_config.dart';
 import 'package:jwt_auth/data/comment_config.dart';
@@ -25,15 +26,18 @@ class ApiService {
     await _performPostRequest(APIConfig.addUrl, requestBody);
   }
 
-  Future<void> updateReport(
-      {String? name,
-      acc,
-      phone,
-      place,
-      sector,
-      int? id,
-      String? comment,
-      String? ticket}) async {
+  Future<void> updateReport({
+    String? name,
+    acc,
+    phone,
+    place,
+    sector,
+    int? id,
+    String? comment,
+    String? ticket,
+    List<int>? problems,
+    List<int>? solution,
+  }) async {
     final requestBody = {
       if (name != null) 'name': name,
       if (acc != null) 'account': acc,
@@ -41,6 +45,8 @@ class ApiService {
       if (place != null) 'place': place,
       if (sector != null) 'sector': sector,
       if (comment != null) 'comment': comment,
+      if (problems != null) 'problem': problems,
+      if (solution != null) 'solutions': solution,
       'ticket': id
     };
 
@@ -114,10 +120,20 @@ class ApiService {
         'Content-Type': 'application/json',
       },
     );
-    print(body);
     if (response.statusCode == 201) {
-      print("Data added successfully");
+      Fluttertoast.showToast(
+        msg: "تمت اضافة البيانات بنجاح!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        textColor: Colors.white,
+      );
     } else {
+      Fluttertoast.showToast(
+        msg: "لم تمت عملية الاضافة!",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        textColor: Colors.white,
+      );
       throw Exception('Failed to add data: ${response.statusCode}');
     }
   }
@@ -134,8 +150,19 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      print("Data updated successfully");
+      Fluttertoast.showToast(
+        msg: "تم تحديث البيانات بنجاح!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        textColor: Colors.white,
+      );
     } else {
+      Fluttertoast.showToast(
+        msg: "!لم يتم التحديث",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        textColor: Colors.white,
+      );
       throw Exception('Failed to update data: ${response.statusCode}');
     }
   }

@@ -51,6 +51,17 @@ class TicketCard extends StatelessWidget {
                 height: 5,
               ),
               Text(
+                user.place!,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.black,
+                ),
+                textDirection: TextDirection.ltr,
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              Text(
                 user.lastComment!,
                 style: const TextStyle(
                   fontSize: 14,

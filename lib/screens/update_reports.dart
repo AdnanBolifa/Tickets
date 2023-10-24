@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_auth/data/comment_config.dart';
+import 'package:jwt_auth/data/problem_config.dart';
 import 'package:jwt_auth/data/report_config.dart';
+import 'package:jwt_auth/data/solution_config.dart';
+import 'package:jwt_auth/screens/home.dart';
 import 'package:jwt_auth/services/api_service.dart';
 import 'package:jwt_auth/theme/colors.dart';
 import 'package:jwt_auth/widgets/comment_card.dart';
@@ -32,6 +35,13 @@ class _UpdateReportScreenState extends State<UpdateReport> {
   TextEditingController placeController = TextEditingController();
   TextEditingController commentController = TextEditingController();
 
+  List<Problem> problemsCheckbox = [];
+  List<Solution> solutionsCheckbox = [];
+  List<String> textTrueProblem = [];
+  List<String> textTrueSolution = [];
+  late List<bool> problemCheckboxGroup;
+  late List<bool> solutionCheckboxGroup;
+
   @override
   void initState() {
     super.initState();
@@ -42,6 +52,41 @@ class _UpdateReportScreenState extends State<UpdateReport> {
     account = accController.text = widget.user.acc!;
     comments = widget.user.comments;
     id = widget.user.id;
+
+    ApiService().fetchProblems().then((problems) {
+      setState(() {
+        problemsCheckbox = problems;
+        problemCheckboxGroup =
+            List.generate(problemsCheckbox.length, (index) => false);
+
+        for (var item in widget.user.problems!) {
+          for (var i = 0; i < problemsCheckbox.length; i++) {
+            if (item == problemsCheckbox[i].id) {
+              textTrueProblem.add(problemsCheckbox[i].name);
+              problemCheckboxGroup[i] = true;
+            }
+          }
+        }
+      });
+    });
+
+    // Fetch solutions and update the state when done.
+    ApiService().fetchSolutions().then((solutions) {
+      setState(() {
+        solutionsCheckbox = solutions;
+        solutionCheckboxGroup =
+            List.generate(solutionsCheckbox.length, (index) => false);
+
+        for (var item in widget.user.solutions!) {
+          for (var i = 0; i < solutionsCheckbox.length; i++) {
+            if (item == solutionsCheckbox[i].id) {
+              textTrueSolution.add(solutionsCheckbox[i].name);
+              solutionCheckboxGroup[i] = true;
+            }
+          }
+        }
+      });
+    });
   }
 
   @override
@@ -66,14 +111,7 @@ class _UpdateReportScreenState extends State<UpdateReport> {
             ),
             child: ElevatedButton(
               onPressed: () {
-                ApiService().updateReport(
-                    name: nameController.text,
-                    acc: accController.text,
-                    phone: phoneController.text,
-                    place: placeController.text,
-                    sector: sectorController.text,
-                    id: id);
-                Navigator.pop(context);
+                _submitReport();
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
               child: const Text(
@@ -125,21 +163,163 @@ class _UpdateReportScreenState extends State<UpdateReport> {
 
               const SizedBox(height: 16.0),
 
-              SizedBox(
-                height: 400,
-                child: comments!.isEmpty
-                    ? const Center(
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minHeight: 100, // Set the default minimum height to 100
+                ),
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Stack(
+                    children: [
+                      const Align(
+                        alignment: Alignment.topCenter,
                         child: Text(
-                        'لايوجد تعليقات',
-                        style: TextStyle(fontSize: 16),
-                      ))
-                    : ListView.builder(
-                        itemCount: comments!.length,
-                        itemBuilder: (context, index) {
-                          return CommentCard(comment: comments![index]);
-                        },
+                          'المشاكل',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 15),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: textTrueProblem.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              dense: true,
+                              leading: Container(
+                                width: 24,
+                                height: 24,
+                                alignment: Alignment.center,
+                                child: const Icon(
+                                  Icons.fiber_manual_record,
+                                  size: 12,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              title: Text(
+                                textTrueProblem[index],
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Positioned(
+                        right: 10,
+                        bottom: 10,
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              _showBottomSheetProblem(context);
+                            },
+                            icon: const Icon(Icons.edit, color: Colors.black),
+                            iconSize: 24,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
+
+              const SizedBox(height: 16.0),
+
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minHeight: 100, // Set the default minimum height to 100
+                ),
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Stack(
+                    children: [
+                      const Align(
+                        alignment: Alignment.topCenter,
+                        child: Text(
+                          'الحلول',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 15),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: textTrueSolution.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              dense: true,
+                              leading: Container(
+                                width: 24,
+                                height: 24,
+                                alignment: Alignment.center,
+                                child: const Icon(
+                                  Icons.fiber_manual_record,
+                                  size: 12,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              title: Text(
+                                textTrueSolution[index],
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Positioned(
+                        right: 10,
+                        bottom: 10,
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              _showBottomSheetSolution(context);
+                            },
+                            icon: const Icon(Icons.edit, color: Colors.black),
+                            iconSize: 24,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              //Card size Box
+              const SizedBox(height: 16.0),
+
+              if (comments!.isEmpty)
+                const Center(
+                  child: Text(
+                    'لا يوجد تعليقات',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                )
+              else
+                for (var comment in comments!) CommentCard(comment: comment),
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -180,5 +360,128 @@ class _UpdateReportScreenState extends State<UpdateReport> {
         ),
       ),
     );
+  }
+
+  void _submitReport() {
+    List<int> selectedSolutionIds = solutionCheckboxGroup
+        .asMap()
+        .entries
+        .where((entry) => entry.value)
+        .map((entry) => solutionsCheckbox[entry.key].id)
+        .toList();
+
+    List<int> selectedProblemIds = problemCheckboxGroup
+        .asMap()
+        .entries
+        .where((entry) => entry.value)
+        .map((entry) => problemsCheckbox[entry.key].id)
+        .toList();
+
+    ApiService().updateReport(
+        name: nameController.text,
+        acc: accController.text,
+        phone: phoneController.text,
+        place: placeController.text,
+        sector: sectorController.text,
+        id: id,
+        problems: selectedProblemIds,
+        solution: selectedSolutionIds);
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+      return const HomeScreen();
+    }));
+  }
+
+  void _updateSelectedProblems() {
+    textTrueProblem.clear();
+    for (int index = 0; index < problemsCheckbox.length; index++) {
+      if (problemCheckboxGroup[index]) {
+        textTrueProblem.add(problemsCheckbox[index].name);
+      }
+    }
+  }
+
+  void _updateSelectedSolution() {
+    textTrueSolution.clear();
+    for (int index = 0; index < solutionsCheckbox.length; index++) {
+      if (solutionCheckboxGroup[index]) {
+        textTrueSolution.add(solutionsCheckbox[index].name);
+      }
+    }
+  }
+
+  void _showBottomSheetProblem(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return ListView.builder(
+              itemCount: problemsCheckbox.length,
+              itemBuilder: (BuildContext context, int index) {
+                return CheckboxListTile(
+                  title: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          problemsCheckbox[index].name,
+                          textAlign: TextAlign.right,
+                        ),
+                      ),
+                    ],
+                  ),
+                  value: problemCheckboxGroup[index],
+                  onChanged: (value) {
+                    setState(() {
+                      problemCheckboxGroup[index] = value!;
+                    });
+                  },
+                );
+              },
+            );
+          },
+        );
+      },
+    ).then((result) {
+      _updateSelectedProblems();
+      setState(() {});
+    });
+  }
+
+  void _showBottomSheetSolution(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return ListView.builder(
+              itemCount: solutionsCheckbox.length,
+              itemBuilder: (BuildContext context, int index) {
+                return CheckboxListTile(
+                  title: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          solutionsCheckbox[index].name,
+                          textAlign: TextAlign.right,
+                        ),
+                      ),
+                    ],
+                  ),
+                  value: solutionCheckboxGroup[index],
+                  onChanged: (value) {
+                    setState(() {
+                      solutionCheckboxGroup[index] = value!;
+                    });
+                  },
+                );
+              },
+            );
+          },
+        );
+      },
+    ).then((result) {
+      _updateSelectedSolution();
+      setState(() {});
+    });
   }
 }

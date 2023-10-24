@@ -1,6 +1,8 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jwt_auth/screens/home.dart';
 import 'package:jwt_auth/services/auth_service.dart';
 import 'package:jwt_auth/theme/colors.dart';
@@ -44,6 +46,20 @@ class _LoginPageState extends State<LoginPage> {
               textField('كلمة المرور', 'sudo su', passwordController),
               ElevatedButton(
                 onPressed: () async {
+                  var connectivityResult =
+                      await (Connectivity().checkConnectivity());
+                  if (connectivityResult == ConnectivityResult.none) {
+                    // No internet connection
+                    Fluttertoast.showToast(
+                      msg: "لا يوجد اتصال بالانترنت",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      backgroundColor: Colors.red,
+                      textColor: Colors.white,
+                    );
+                    return; // Don't proceed with the login if there's no internet connection.
+                  }
+
                   try {
                     final token = await AuthService()
                         .login(emailController.text, passwordController.text);
