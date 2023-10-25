@@ -71,27 +71,84 @@ class TicketCard extends StatelessWidget {
               ),
               Align(
                 alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: const EdgeInsets.all(3),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(5.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        color: Colors.grey[300],
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          _makePhoneCall(user.mobile);
-                        },
-                        icon: const Icon(
-                          Icons.phone,
-                          size: 30,
-                          color: Colors.black,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(5.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.rectangle,
+                            color: Colors.red[100],
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              //* Show pop out msg to the user for making sure or not
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text(
+                                      "رسالة تأكيد",
+                                      textAlign: TextAlign.right,
+                                    ),
+                                    content: const Text(
+                                      "هل انت متأكد من بدأ المؤقت؟",
+                                      textAlign: TextAlign.right,
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          // Perform your action here
+                                        },
+                                        child: const Text("نعم"),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text("لا"),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.watch_later,
+                              size: 30,
+                              color: Colors.black,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.all(3),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(5.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.rectangle,
+                            color: Colors.grey[300],
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              _makePhoneCall(user.mobile);
+                            },
+                            icon: const Icon(
+                              Icons.phone,
+                              size: 30,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
