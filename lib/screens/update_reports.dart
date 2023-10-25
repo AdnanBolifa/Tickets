@@ -311,49 +311,56 @@ class _UpdateReportScreenState extends State<UpdateReport> {
               //Card size Box
               const SizedBox(height: 16.0),
 
-              if (comments!.isEmpty)
-                const Center(
-                  child: Text(
-                    'لا يوجد تعليقات',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                )
-              else
-                for (var comment in comments!) CommentCard(comment: comment),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      ApiService().updateReport(
-                          comment: commentController.text, id: id);
+              SizedBox(
+                child: Column(children: [
+                  if (comments!.isEmpty)
+                    const Center(
+                      child: Text(
+                        'لا يوجد تعليقات',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    )
+                  else
+                    for (var comment in comments!)
+                      CommentCard(comment: comment),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () async {
+                          ApiService().updateReport(
+                              comment: commentController.text, id: id);
 
-                      setState(() {
-                        comments?.add(CommentData(
-                            ticket: 0,
-                            comment: commentController.text,
-                            createdAt: 'الأن',
-                            createdBy: 'انت'));
-                      });
-                      commentController.clear();
-                    },
-                    style: ButtonStyle(
-                      minimumSize:
-                          MaterialStateProperty.all<Size>(const Size(50, 50)),
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                          AppColors.primaryColor),
-                    ),
-                    child: const Text(
-                      'اضافة تعليق',
-                      style: TextStyle(fontSize: 16),
-                    ),
+                          setState(() {
+                            comments?.add(CommentData(
+                                ticket: 0,
+                                comment: commentController.text,
+                                createdAt: 'الأن',
+                                createdBy: 'انت'));
+                          });
+                          commentController.clear();
+                        },
+                        style: ButtonStyle(
+                          minimumSize: MaterialStateProperty.all<Size>(
+                              const Size(50, 50)),
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              AppColors.primaryColor),
+                        ),
+                        child: const Text(
+                          'اضافة تعليق',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child:
+                            textField('تعليق', 'اضف تعليق', commentController),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: textField('تعليق', 'اضف تعليق', commentController),
-                  ),
-                ],
+                ]),
               ),
             ],
           ),

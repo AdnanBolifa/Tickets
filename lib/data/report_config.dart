@@ -12,19 +12,21 @@ class Report {
   final List<CommentData>? comments;
   final List<int>? problems;
   final List<int>? solutions;
+  final bool enable = true;
 
-  Report(
-      {required this.userName,
-      required this.mobile,
-      required this.id,
-      this.acc,
-      this.sector,
-      this.place,
-      this.createdAt,
-      this.lastComment,
-      this.comments,
-      this.problems,
-      this.solutions});
+  Report({
+    required this.userName,
+    required this.mobile,
+    required this.id,
+    this.acc,
+    this.sector,
+    this.place,
+    this.createdAt,
+    this.lastComment,
+    this.comments,
+    this.problems,
+    this.solutions,
+  });
 
   factory Report.fromJson(Map<String, dynamic> json) {
     // Parse the comments list

@@ -1,21 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_auth/data/location_config.dart';
 import 'package:jwt_auth/data/problem_config.dart';
+import 'package:jwt_auth/data/report_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
 import 'package:jwt_auth/screens/home.dart';
+import 'package:jwt_auth/screens/survey_page.dart';
 import 'package:jwt_auth/services/api_service.dart';
 import 'package:jwt_auth/services/location_services.dart';
-import 'package:jwt_auth/theme/colors.dart';
 import 'package:jwt_auth/widgets/text_field.dart';
+import 'package:jwt_auth/widgets/comment_section.dart';
 
 class AddReport extends StatefulWidget {
-  const AddReport({Key? key}) : super(key: key);
+  final Widget? comments;
+  final Report? user;
+  const AddReport({Key? key, this.comments, this.user}) : super(key: key);
 
   @override
   _AddReportScreenState createState() => _AddReportScreenState();
 }
 
 class _AddReportScreenState extends State<AddReport> {
+  //Controllers
+  TextEditingController nameController = TextEditingController();
+  TextEditingController accController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController sectorController = TextEditingController();
+  TextEditingController placeController = TextEditingController();
+  TextEditingController commentController = TextEditingController();
+
   String name = '';
   String account = '';
   String phone = '';
@@ -24,20 +36,42 @@ class _AddReportScreenState extends State<AddReport> {
 
   List<Problem> problemsCheckbox = [];
   List<Solution> solutionsCheckbox = [];
-
+  List<String> textTrueProblem = [];
+  List<String> textTrueSolution = [];
   late List<bool> problemCheckboxGroup;
   late List<bool> solutionCheckboxGroup;
+
+  void init() {
+    if (widget.user != null) {
+      name = nameController.text = widget.user!.userName;
+      phone = phoneController.text = widget.user!.mobile;
+      place = placeController.text = widget.user!.place!;
+      sector = sectorController.text = widget.user!.sector!;
+      account = accController.text = widget.user!.acc!;
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    init();
 
-    // Fetch problems and update the state when done.
     ApiService().fetchProblems().then((problems) {
       setState(() {
         problemsCheckbox = problems;
         problemCheckboxGroup =
             List.generate(problemsCheckbox.length, (index) => false);
+
+        if (widget.user != null) {
+          for (var item in widget.user!.problems!) {
+            for (var i = 0; i < problemsCheckbox.length; i++) {
+              if (item == problemsCheckbox[i].id) {
+                textTrueProblem.add(problemsCheckbox[i].name);
+                problemCheckboxGroup[i] = true;
+              }
+            }
+          }
+        }
       });
     });
 
@@ -47,21 +81,60 @@ class _AddReportScreenState extends State<AddReport> {
         solutionsCheckbox = solutions;
         solutionCheckboxGroup =
             List.generate(solutionsCheckbox.length, (index) => false);
+
+        if (widget.user != null) {
+          for (var item in widget.user!.solutions!) {
+            for (var i = 0; i < solutionsCheckbox.length; i++) {
+              if (item == solutionsCheckbox[i].id) {
+                textTrueSolution.add(solutionsCheckbox[i].name);
+                solutionCheckboxGroup[i] = true;
+              }
+            }
+          }
+        }
       });
     });
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    phoneController.dispose();
+    placeController.dispose();
+    sectorController.dispose();
+    accController.dispose();
+    super.dispose();
   }
 
   TextEditingController location = TextEditingController();
   final LocationService locationService = LocationService();
   LocationData? locationData;
 
-  List<String> textTrueProblem = [];
-  List<String> textTrueSolution = [];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          Container(
+            margin: const EdgeInsets.all(8.0), // Margin for spacing
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                _submitReport();
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+              child: const Text(
+                'حفظ',
+                style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w300),
+              ),
+            ),
+          ),
+        ],
         title: const Text(
           'إضافة بلاغ',
           style: TextStyle(fontWeight: FontWeight.bold),
@@ -78,6 +151,7 @@ class _AddReportScreenState extends State<AddReport> {
                 'الاسم',
                 'خالد جمعة',
                 name,
+                nameController,
                 (value) {
                   setState(() {
                     name = value;
@@ -92,6 +166,7 @@ class _AddReportScreenState extends State<AddReport> {
                       'الهاتف',
                       '091XXXXXXX',
                       name,
+                      phoneController,
                       (value) {
                         setState(() {
                           phone = value;
@@ -105,6 +180,7 @@ class _AddReportScreenState extends State<AddReport> {
                       'الحساب',
                       'HTIX00000',
                       account,
+                      accController,
                       (value) {
                         setState(() {
                           account = value;
@@ -122,6 +198,7 @@ class _AddReportScreenState extends State<AddReport> {
                       'المكان',
                       'ش طرابلس',
                       place,
+                      placeController,
                       (value) {
                         setState(() {
                           place = value;
@@ -135,6 +212,7 @@ class _AddReportScreenState extends State<AddReport> {
                       'البرج',
                       'س',
                       sector,
+                      sectorController,
                       (value) {
                         setState(() {
                           sector = value;
@@ -352,22 +430,11 @@ class _AddReportScreenState extends State<AddReport> {
               ),
 
               const SizedBox(height: 16.0),
-
-              ElevatedButton(
-                onPressed: () async {
-                  _submitReport();
-                },
-                style: ButtonStyle(
-                  minimumSize:
-                      MaterialStateProperty.all<Size>(const Size(100, 50)),
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(AppColors.primaryColor),
-                ),
-                child: const Text(
-                  'إضافة',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
+              if (widget.user != null)
+                CommentSection(
+                    id: widget.user!.id,
+                    user: widget.user!,
+                    comments: widget.user!.comments),
             ],
           ),
         ),
@@ -389,11 +456,24 @@ class _AddReportScreenState extends State<AddReport> {
         .where((entry) => entry.value)
         .map((entry) => problemsCheckbox[entry.key].id)
         .toList();
+    //go to update or add functions
+    if (widget.user == null) {
+      ApiService().addReport(name, account, phone, place, sector,
+          selectedProblemIds, selectedSolutionIds);
+    } else {
+      ApiService().updateReport(
+          name: nameController.text,
+          acc: accController.text,
+          phone: phoneController.text,
+          place: placeController.text,
+          sector: sectorController.text,
+          id: widget.user!.id,
+          problems: selectedProblemIds,
+          solution: selectedSolutionIds);
+    }
 
-    ApiService().addReport(name, account, phone, place, sector,
-        selectedProblemIds, selectedSolutionIds);
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-      return const HomeScreen();
+      return SurveyPage();
     }));
   }
 

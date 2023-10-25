@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_auth/data/report_config.dart';
-import 'package:jwt_auth/screens/add_reports.dart';
+import 'package:jwt_auth/screens/ticket.dart';
 import 'package:jwt_auth/screens/login.dart';
-import 'package:jwt_auth/screens/update_reports.dart';
 import 'package:jwt_auth/services/api_service.dart';
 import 'package:jwt_auth/services/auth_service.dart';
 import 'package:jwt_auth/theme/colors.dart';
@@ -115,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    UpdateReport(user: userList[index]),
+                                    AddReport(user: userList[index]),
                               ),
                             );
                           },
