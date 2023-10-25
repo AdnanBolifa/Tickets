@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
         originalList = userList;
       });
     } catch (e) {
-      print('Error while refreshing data: $e');
+      debugPrint('Error while refreshing data: $e');
     } finally {
       setState(() {
         isRefreshing = false;
