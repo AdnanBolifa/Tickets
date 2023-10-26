@@ -4,8 +4,10 @@ import 'package:url_launcher/url_launcher.dart';
 
 class TicketCard extends StatelessWidget {
   final Ticket ticket;
+  final bool isDisabled;
 
-  const TicketCard({Key? key, required this.ticket}) : super(key: key);
+  const TicketCard({Key? key, required this.ticket, required this.isDisabled})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +19,15 @@ class TicketCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Container(
+          decoration: isDisabled
+              ? BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                )
+              : BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,9 +58,7 @@ class TicketCard extends StatelessWidget {
                 ),
                 textDirection: TextDirection.ltr,
               ),
-              const SizedBox(
-                height: 5,
-              ),
+              const SizedBox(height: 5),
               Text(
                 ticket.place!,
                 style: const TextStyle(
@@ -58,9 +67,7 @@ class TicketCard extends StatelessWidget {
                 ),
                 textDirection: TextDirection.ltr,
               ),
-              const SizedBox(
-                height: 5,
-              ),
+              const SizedBox(height: 5),
               Text(
                 ticket.lastComment!,
                 style: const TextStyle(

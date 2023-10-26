@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_auth/data/ticket_config.dart';
-import 'package:jwt_auth/screens/ticket.dart';
+import 'package:jwt_auth/screens/tickets_page.dart';
 import 'package:jwt_auth/screens/login.dart';
 import 'package:jwt_auth/services/api_service.dart';
 import 'package:jwt_auth/services/auth_service.dart';
@@ -109,16 +109,23 @@ class _HomeScreenState extends State<HomeScreen> {
                   : ListView.builder(
                       itemCount: ticketList.length,
                       itemBuilder: (context, index) {
+                        final isTicketEnabled =
+                            ticketList[index].enable ?? false;
                         return GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    AddTicket(ticket: ticketList[index]),
-                              ),
-                            );
-                          },
-                          child: TicketCard(ticket: ticketList[index]),
+                          onTap: isTicketEnabled
+                              ? () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          AddTicket(ticket: ticketList[index]),
+                                    ),
+                                  );
+                                }
+                              : null,
+                          child: TicketCard(
+                            ticket: ticketList[index],
+                            isDisabled: isTicketEnabled,
+                          ),
                         );
                       },
                     ),

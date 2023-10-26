@@ -468,7 +468,7 @@ class _AddReportScreenState extends State<AddTicket> {
     }
 
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-      return SurveyPage();
+      return SurveyPage(ticket: widget.ticket);
     }));
   }
 

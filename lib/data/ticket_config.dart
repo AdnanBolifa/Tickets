@@ -12,7 +12,7 @@ class Ticket {
   final List<CommentData>? comments;
   final List<int>? problems;
   final List<int>? solutions;
-  final bool enable = true;
+  bool? enable = true;
 
   Ticket({
     required this.userName,

@@ -5,8 +5,8 @@ import 'package:jwt_auth/data/ticket_config.dart';
 import 'package:jwt_auth/screens/home.dart';
 
 class SurveyPage extends StatefulWidget {
-  final Ticket? user;
-  const SurveyPage({Key? key, this.user}) : super(key: key);
+  final Ticket? ticket;
+  const SurveyPage({Key? key, this.ticket}) : super(key: key);
 
   @override
   _SurveyPageState createState() => _SurveyPageState();
@@ -99,10 +99,12 @@ class _SurveyPageState extends State<SurveyPage> {
                 padding: const EdgeInsets.all(16.0),
               ),
               onPressed: () {
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) {
-                  return const HomeScreen();
-                }));
+                widget.ticket!.enable = false;
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const HomeScreen(),
+                  ),
+                );
               },
               child: const Text(
                 'Submit',
