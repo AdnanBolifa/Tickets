@@ -1,11 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:jwt_auth/data/report_config.dart';
+import 'package:jwt_auth/data/ticket_config.dart';
 import 'package:jwt_auth/screens/home.dart';
 
 class SurveyPage extends StatefulWidget {
-  final Report? user;
+  final Ticket? user;
   const SurveyPage({Key? key, this.user}) : super(key: key);
 
   @override

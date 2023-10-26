@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_auth/data/comment_config.dart';
-import 'package:jwt_auth/data/report_config.dart';
+import 'package:jwt_auth/data/ticket_config.dart';
 import 'package:jwt_auth/services/api_service.dart';
 import 'package:jwt_auth/theme/colors.dart';
 import 'package:jwt_auth/widgets/comment_card.dart';
@@ -9,7 +9,7 @@ import 'package:jwt_auth/widgets/text_field.dart';
 class CommentSection extends StatefulWidget {
   final List<CommentData>? comments;
 
-  final Report user;
+  final Ticket user;
   final int id;
   const CommentSection(
       {Key? key, required this.id, this.comments, required this.user})

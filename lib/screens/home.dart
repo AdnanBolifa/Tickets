@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jwt_auth/data/report_config.dart';
+import 'package:jwt_auth/data/ticket_config.dart';
 import 'package:jwt_auth/screens/ticket.dart';
 import 'package:jwt_auth/screens/login.dart';
 import 'package:jwt_auth/services/api_service.dart';
@@ -16,8 +16,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController searchController = TextEditingController();
-  List<Report> userList = [];
-  List<Report> originalList = [];
+  List<Ticket> ticketList = [];
+  List<Ticket> originalList = [];
 
   @override
   void initState() {
@@ -28,10 +28,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void _filterUsers(String query) {
     setState(() {
       if (query.isEmpty) {
-        userList = List.from(originalList);
+        ticketList = List.from(originalList);
       } else {
-        userList = userList.where((user) {
-          return user.userName.toLowerCase().contains(query.toLowerCase());
+        ticketList = ticketList.where((ticket) {
+          return ticket.userName.toLowerCase().contains(query.toLowerCase());
         }).toList();
       }
     });
@@ -46,8 +46,8 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final users = await ApiService().getReports(context);
       setState(() {
-        userList = users;
-        originalList = userList;
+        ticketList = users;
+        originalList = ticketList;
       });
     } catch (e) {
       print('Error while refreshing data: $e');
@@ -102,23 +102,23 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Expanded(
-              child: userList.isEmpty
+              child: ticketList.isEmpty
                   ? const Center(
                       child: CircularProgressIndicator(),
                     )
                   : ListView.builder(
-                      itemCount: userList.length,
+                      itemCount: ticketList.length,
                       itemBuilder: (context, index) {
                         return GestureDetector(
                           onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    AddReport(user: userList[index]),
+                                    AddTicket(ticket: ticketList[index]),
                               ),
                             );
                           },
-                          child: TicketCard(user: userList[index]),
+                          child: TicketCard(ticket: ticketList[index]),
                         );
                       },
                     ),
@@ -130,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => const AddReport(),
+              builder: (context) => const AddTicket(),
             ),
           );
         },

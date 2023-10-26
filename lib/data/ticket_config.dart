@@ -1,6 +1,6 @@
 import 'package:jwt_auth/data/comment_config.dart';
 
-class Report {
+class Ticket {
   final int id;
   final String userName;
   final String mobile;
@@ -14,7 +14,7 @@ class Report {
   final List<int>? solutions;
   final bool enable = true;
 
-  Report({
+  Ticket({
     required this.userName,
     required this.mobile,
     required this.id,
@@ -28,7 +28,7 @@ class Report {
     this.solutions,
   });
 
-  factory Report.fromJson(Map<String, dynamic> json) {
+  factory Ticket.fromJson(Map<String, dynamic> json) {
     // Parse the comments list
     final List<CommentData> commentsList = [];
     final commentsJson = json['comments'];
@@ -56,7 +56,7 @@ class Report {
           solutionsJson.where((solution) => solution is int).cast<int>());
     }
 
-    return Report(
+    return Ticket(
       id: json['id'] as int,
       userName: json['name'],
       mobile: json['phone'],

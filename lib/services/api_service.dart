@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:jwt_auth/data/api_config.dart';
 import 'package:jwt_auth/data/comment_config.dart';
 import 'package:jwt_auth/data/problem_config.dart';
-import 'package:jwt_auth/data/report_config.dart';
+import 'package:jwt_auth/data/ticket_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
 import 'package:jwt_auth/screens/login.dart';
 import 'package:jwt_auth/services/auth_service.dart';
@@ -59,7 +59,7 @@ class ApiService {
     }
   }
 
-  Future<List<Report>> getReports(context) async {
+  Future<List<Ticket>> getReports(context) async {
     final authService = AuthService();
 
     final response = await _performAuthenticatedGetRequest(
@@ -70,7 +70,7 @@ class ApiService {
         final responseMap = jsonDecode(utf8.decode(response.bodyBytes));
         final List<dynamic> data = responseMap['results'];
 
-        final users = data.map((user) => Report.fromJson(user)).toList();
+        final users = data.map((user) => Ticket.fromJson(user)).toList();
         return users;
       } catch (e) {
         print('Error parsing JSON: $e');

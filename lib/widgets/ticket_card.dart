@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:jwt_auth/data/report_config.dart';
+import 'package:jwt_auth/data/ticket_config.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TicketCard extends StatelessWidget {
-  final Report user;
+  final Ticket ticket;
 
-  const TicketCard({Key? key, required this.user}) : super(key: key);
+  const TicketCard({Key? key, required this.ticket}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class TicketCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${user.acc!} - ${user.userName}',
+                '${ticket.acc!} - ${ticket.userName}',
                 style: const TextStyle(
                   fontSize: 18,
                   color: Colors.black,
@@ -31,7 +31,7 @@ class TicketCard extends StatelessWidget {
                 textDirection: TextDirection.ltr,
               ),
               Text(
-                user.mobile,
+                ticket.mobile,
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.black,
@@ -40,7 +40,7 @@ class TicketCard extends StatelessWidget {
                 textDirection: TextDirection.ltr,
               ),
               Text(
-                "[${user.createdAt!}]",
+                "[${ticket.createdAt!}]",
                 style: const TextStyle(
                   fontSize: 12,
                   color: Colors.black,
@@ -51,7 +51,7 @@ class TicketCard extends StatelessWidget {
                 height: 5,
               ),
               Text(
-                user.place!,
+                ticket.place!,
                 style: const TextStyle(
                   fontSize: 12,
                   color: Colors.black,
@@ -62,7 +62,7 @@ class TicketCard extends StatelessWidget {
                 height: 5,
               ),
               Text(
-                user.lastComment!,
+                ticket.lastComment!,
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.black,
@@ -82,7 +82,7 @@ class TicketCard extends StatelessWidget {
                       ),
                       child: IconButton(
                         onPressed: () {
-                          _makePhoneCall(user.mobile);
+                          _makePhoneCall(ticket.mobile);
                         },
                         icon: const Icon(
                           Icons.phone,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_auth/data/location_config.dart';
 import 'package:jwt_auth/data/problem_config.dart';
-import 'package:jwt_auth/data/report_config.dart';
+import 'package:jwt_auth/data/ticket_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
 import 'package:jwt_auth/screens/survey_page.dart';
 import 'package:jwt_auth/services/api_service.dart';
@@ -9,16 +9,16 @@ import 'package:jwt_auth/services/location_services.dart';
 import 'package:jwt_auth/widgets/text_field.dart';
 import 'package:jwt_auth/widgets/comment_section.dart';
 
-class AddReport extends StatefulWidget {
+class AddTicket extends StatefulWidget {
   final Widget? comments;
-  final Report? user;
-  const AddReport({Key? key, this.comments, this.user}) : super(key: key);
+  final Ticket? ticket;
+  const AddTicket({Key? key, this.comments, this.ticket}) : super(key: key);
 
   @override
   _AddReportScreenState createState() => _AddReportScreenState();
 }
 
-class _AddReportScreenState extends State<AddReport> {
+class _AddReportScreenState extends State<AddTicket> {
   //Controllers
   TextEditingController nameController = TextEditingController();
   TextEditingController accController = TextEditingController();
@@ -41,12 +41,12 @@ class _AddReportScreenState extends State<AddReport> {
   late List<bool> solutionCheckboxGroup;
 
   void init() {
-    if (widget.user != null) {
-      name = nameController.text = widget.user!.userName;
-      phone = phoneController.text = widget.user!.mobile;
-      place = placeController.text = widget.user!.place!;
-      sector = sectorController.text = widget.user!.sector!;
-      account = accController.text = widget.user!.acc!;
+    if (widget.ticket != null) {
+      name = nameController.text = widget.ticket!.userName;
+      phone = phoneController.text = widget.ticket!.mobile;
+      place = placeController.text = widget.ticket!.place!;
+      sector = sectorController.text = widget.ticket!.sector!;
+      account = accController.text = widget.ticket!.acc!;
     }
   }
 
@@ -61,8 +61,8 @@ class _AddReportScreenState extends State<AddReport> {
         problemCheckboxGroup =
             List.generate(problemsCheckbox.length, (index) => false);
 
-        if (widget.user != null) {
-          for (var item in widget.user!.problems!) {
+        if (widget.ticket != null) {
+          for (var item in widget.ticket!.problems!) {
             for (var i = 0; i < problemsCheckbox.length; i++) {
               if (item == problemsCheckbox[i].id) {
                 textTrueProblem.add(problemsCheckbox[i].name);
@@ -81,8 +81,8 @@ class _AddReportScreenState extends State<AddReport> {
         solutionCheckboxGroup =
             List.generate(solutionsCheckbox.length, (index) => false);
 
-        if (widget.user != null) {
-          for (var item in widget.user!.solutions!) {
+        if (widget.ticket != null) {
+          for (var item in widget.ticket!.solutions!) {
             for (var i = 0; i < solutionsCheckbox.length; i++) {
               if (item == solutionsCheckbox[i].id) {
                 textTrueSolution.add(solutionsCheckbox[i].name);
@@ -425,11 +425,11 @@ class _AddReportScreenState extends State<AddReport> {
               ),
 
               const SizedBox(height: 16.0),
-              if (widget.user != null)
+              if (widget.ticket != null)
                 CommentSection(
-                    id: widget.user!.id,
-                    user: widget.user!,
-                    comments: widget.user!.comments),
+                    id: widget.ticket!.id,
+                    user: widget.ticket!,
+                    comments: widget.ticket!.comments),
             ],
           ),
         ),
@@ -452,7 +452,7 @@ class _AddReportScreenState extends State<AddReport> {
         .map((entry) => problemsCheckbox[entry.key].id)
         .toList();
     //go to update or add functions
-    if (widget.user == null) {
+    if (widget.ticket == null) {
       ApiService().addReport(name, account, phone, place, sector,
           selectedProblemIds, selectedSolutionIds);
     } else {
@@ -462,7 +462,7 @@ class _AddReportScreenState extends State<AddReport> {
           phone: phoneController.text,
           place: placeController.text,
           sector: sectorController.text,
-          id: widget.user!.id,
+          id: widget.ticket!.id,
           problems: selectedProblemIds,
           solution: selectedSolutionIds);
     }
