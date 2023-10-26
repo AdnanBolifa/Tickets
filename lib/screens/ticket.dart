@@ -223,152 +223,148 @@ class _AddReportScreenState extends State<AddReport> {
               ),
               const SizedBox(height: 15),
 
-              SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minHeight: 100, // Set the default minimum height to 100
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minHeight: 100, // Set the default minimum height to 100
+                ),
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(5),
                   ),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Stack(
-                      children: [
-                        const Align(
-                          alignment: Alignment.topCenter,
-                          child: Text(
-                            'المشاكل',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                  child: Stack(
+                    children: [
+                      const Align(
+                        alignment: Alignment.topCenter,
+                        child: Text(
+                          'المشاكل',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 15),
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: textTrueProblem.length,
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                dense: true,
-                                leading: Container(
-                                  width: 24,
-                                  height: 24,
-                                  alignment: Alignment.center,
-                                  child: const Icon(
-                                    Icons.fiber_manual_record,
-                                    size: 12,
-                                    color: Colors.black,
-                                  ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 15),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: textTrueProblem.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              dense: true,
+                              leading: Container(
+                                width: 24,
+                                height: 24,
+                                alignment: Alignment.center,
+                                child: const Icon(
+                                  Icons.fiber_manual_record,
+                                  size: 12,
+                                  color: Colors.black,
                                 ),
-                                title: Text(
-                                  textTrueProblem[index],
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                              );
+                              ),
+                              title: Text(
+                                textTrueProblem[index],
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Positioned(
+                        right: 10,
+                        bottom: 10,
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              _showBottomSheetProblem(context);
                             },
+                            icon: const Icon(Icons.edit, color: Colors.black),
+                            iconSize: 24,
                           ),
                         ),
-                        Positioned(
-                          right: 10,
-                          bottom: 10,
-                          child: Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: IconButton(
-                              onPressed: () {
-                                _showBottomSheetProblem(context);
-                              },
-                              icon: const Icon(Icons.edit, color: Colors.black),
-                              iconSize: 24,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
               // Checkboxes - Group Solutions
               const SizedBox(height: 15.0),
 
-              SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minHeight: 100, // Set the default minimum height to 100
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minHeight: 100, // Set the default minimum height to 100
+                ),
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(5),
                   ),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Stack(
-                      children: [
-                        const Align(
-                          alignment: Alignment.topCenter,
-                          child: Text(
-                            'الحلول',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                  child: Stack(
+                    children: [
+                      const Align(
+                        alignment: Alignment.topCenter,
+                        child: Text(
+                          'الحلول',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 15),
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: textTrueSolution.length,
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                dense: true,
-                                leading: Container(
-                                  width: 24,
-                                  height: 24,
-                                  alignment: Alignment.center,
-                                  child: const Icon(
-                                    Icons.fiber_manual_record,
-                                    size: 12,
-                                    color: Colors.black,
-                                  ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 15),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: textTrueSolution.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              dense: true,
+                              leading: Container(
+                                width: 24,
+                                height: 24,
+                                alignment: Alignment.center,
+                                child: const Icon(
+                                  Icons.fiber_manual_record,
+                                  size: 12,
+                                  color: Colors.black,
                                 ),
-                                title: Text(
-                                  textTrueSolution[index],
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                              );
+                              ),
+                              title: Text(
+                                textTrueSolution[index],
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Positioned(
+                        right: 10,
+                        bottom: 10,
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              _showBottomSheetSolution(context);
                             },
+                            icon: const Icon(Icons.edit, color: Colors.black),
+                            iconSize: 24,
                           ),
                         ),
-                        Positioned(
-                          right: 10,
-                          bottom: 10,
-                          child: Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: IconButton(
-                              onPressed: () {
-                                _showBottomSheetSolution(context);
-                              },
-                              icon: const Icon(Icons.edit, color: Colors.black),
-                              iconSize: 24,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
