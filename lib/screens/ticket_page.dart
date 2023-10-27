@@ -32,6 +32,8 @@ class _AddReportScreenState extends State<AddTicket> {
   String phone = '';
   String place = '';
   String sector = '';
+  double? longitude;
+  double? latitude;
 
   List<Problem> problemsCheckbox = [];
   List<Solution> solutionsCheckbox = [];
@@ -47,6 +49,9 @@ class _AddReportScreenState extends State<AddTicket> {
       place = placeController.text = widget.ticket!.place!;
       sector = sectorController.text = widget.ticket!.sector!;
       account = accController.text = widget.ticket!.acc!;
+      longitude = widget.ticket!.locationData!.longitude;
+      latitude = widget.ticket!.locationData!.latitude;
+      locationController.text = '$latitude, $longitude';
     }
   }
 
@@ -105,7 +110,7 @@ class _AddReportScreenState extends State<AddTicket> {
     super.dispose();
   }
 
-  TextEditingController location = TextEditingController();
+  TextEditingController locationController = TextEditingController();
   final LocationService locationService = LocationService();
   LocationData? locationData;
 
@@ -380,7 +385,7 @@ class _AddReportScreenState extends State<AddTicket> {
                     child: ElevatedButton(
                       onPressed: () async {
                         locationData = await locationService.getUserLocation();
-                        location.text =
+                        locationController.text =
                             '${locationData!.latitude}, ${locationData!.longitude}';
                       },
                       style: ElevatedButton.styleFrom(
@@ -404,7 +409,7 @@ class _AddReportScreenState extends State<AddTicket> {
                     child: Directionality(
                       textDirection: TextDirection.rtl,
                       child: TextField(
-                        controller: location,
+                        controller: locationController,
                         readOnly: true,
                         decoration: const InputDecoration(
                           labelText: 'احداثيات الموقع',
@@ -453,8 +458,16 @@ class _AddReportScreenState extends State<AddTicket> {
         .toList();
     //go to update or add functions
     if (widget.ticket == null) {
-      ApiService().addReport(name, account, phone, place, sector,
-          selectedProblemIds, selectedSolutionIds);
+      ApiService().addReport(
+          name,
+          account,
+          phone,
+          place,
+          sector,
+          selectedProblemIds,
+          selectedSolutionIds,
+          locationData!.longitude!,
+          locationData!.latitude!);
     } else {
       ApiService().updateReport(
           name: nameController.text,
@@ -464,7 +477,9 @@ class _AddReportScreenState extends State<AddTicket> {
           sector: sectorController.text,
           id: widget.ticket!.id,
           problems: selectedProblemIds,
-          solution: selectedSolutionIds);
+          solution: selectedSolutionIds,
+          longitude: locationData!.longitude!,
+          latitude: locationData!.latitude!);
     }
 
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {

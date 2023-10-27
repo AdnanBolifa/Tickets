@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_auth/data/ticket_config.dart';
-import 'package:jwt_auth/screens/tickets_page.dart';
+import 'package:jwt_auth/screens/ticket_page.dart';
 import 'package:jwt_auth/screens/login.dart';
 import 'package:jwt_auth/services/api_service.dart';
 import 'package:jwt_auth/services/auth_service.dart';
@@ -124,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               : null,
                           child: TicketCard(
                             ticket: ticketList[index],
-                            isDisabled: isTicketEnabled,
+                            isDisabled: !isTicketEnabled,
                           ),
                         );
                       },

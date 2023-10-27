@@ -16,7 +16,7 @@ class LocationService {
         double? latitude = position.latitude;
         double? longitude = position.longitude;
 
-        return LocationData(latitude, longitude);
+        return LocationData(latitude: latitude, longitude: longitude);
       } catch (e) {
         debugPrint('Error getting location: $e');
       }

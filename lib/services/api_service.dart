@@ -11,8 +11,16 @@ import 'package:jwt_auth/screens/login.dart';
 import 'package:jwt_auth/services/auth_service.dart';
 
 class ApiService {
-  Future<void> addReport(String name, acc, phone, place, sector,
-      List<int> problems, List<int> solution) async {
+  Future<void> addReport(
+      String name,
+      acc,
+      phone,
+      place,
+      sector,
+      List<int> problems,
+      List<int> solution,
+      double longitude,
+      double latitude) async {
     final requestBody = {
       'name': name,
       'phone': phone,
@@ -21,6 +29,8 @@ class ApiService {
       'sector': sector,
       'problem': problems,
       'solutions': solution,
+      'longitude': longitude,
+      'latitude': latitude
     };
 
     await _performPostRequest(APIConfig.addUrl, requestBody);
@@ -37,6 +47,8 @@ class ApiService {
     String? ticket,
     List<int>? problems,
     List<int>? solution,
+    double? longitude,
+    double? latitude,
   }) async {
     final requestBody = {
       if (name != null) 'name': name,
@@ -47,14 +59,18 @@ class ApiService {
       if (comment != null) 'comment': comment,
       if (problems != null) 'problem': problems,
       if (solution != null) 'solutions': solution,
+      if (longitude != null) 'longitude': longitude,
+      if (latitude != null) 'latitude': latitude,
       'ticket': id
     };
 
     if (id == null) {
       throw 'Id not provided';
     } else if (comment == null) {
+      //update data
       await _performPutRequest('${APIConfig.updateUrl}$id/edit', requestBody);
     } else {
+      //add new comment
       await _performPostRequest('${APIConfig.updateUrl}update', requestBody);
     }
   }

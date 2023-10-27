@@ -13,11 +13,11 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  final accesstoken = await AuthService().getAccessToken();
+  final accessToken = await AuthService().getAccessToken();
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: accesstoken != null ? const HomeScreen() : const LoginPage(),
+      home: accessToken != null ? const HomeScreen() : const LoginPage(),
       theme: customTheme,
     ),
   );
