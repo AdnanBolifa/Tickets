@@ -5,14 +5,22 @@ import 'package:http/http.dart' as http;
 import 'package:jwt_auth/data/api_config.dart';
 import 'package:jwt_auth/data/comment_config.dart';
 import 'package:jwt_auth/data/problem_config.dart';
-import 'package:jwt_auth/data/report_config.dart';
+import 'package:jwt_auth/data/ticket_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
 import 'package:jwt_auth/screens/login.dart';
 import 'package:jwt_auth/services/auth_service.dart';
 
 class ApiService {
-  Future<void> addReport(String name, acc, phone, place, sector,
-      List<int> problems, List<int> solution) async {
+  Future<void> addReport(
+      String name,
+      acc,
+      phone,
+      place,
+      sector,
+      List<int> problems,
+      List<int> solution,
+      double longitude,
+      double latitude) async {
     final requestBody = {
       'name': name,
       'phone': phone,
@@ -21,6 +29,8 @@ class ApiService {
       'sector': sector,
       'problem': problems,
       'solutions': solution,
+      'longitude': longitude,
+      'latitude': latitude
     };
 
     await _performPostRequest(APIConfig.addUrl, requestBody);
@@ -37,6 +47,8 @@ class ApiService {
     String? ticket,
     List<int>? problems,
     List<int>? solution,
+    double? longitude,
+    double? latitude,
   }) async {
     final requestBody = {
       if (name != null) 'name': name,
@@ -47,19 +59,23 @@ class ApiService {
       if (comment != null) 'comment': comment,
       if (problems != null) 'problem': problems,
       if (solution != null) 'solutions': solution,
+      if (longitude != null) 'longitude': longitude,
+      if (latitude != null) 'latitude': latitude,
       'ticket': id
     };
 
     if (id == null) {
       throw 'Id not provided';
     } else if (comment == null) {
+      //update data
       await _performPutRequest('${APIConfig.updateUrl}$id/edit', requestBody);
     } else {
+      //add new comment
       await _performPostRequest('${APIConfig.updateUrl}update', requestBody);
     }
   }
 
-  Future<List<Report>> getReports(context) async {
+  Future<List<Ticket>> getReports(context) async {
     final authService = AuthService();
 
     final response = await _performAuthenticatedGetRequest(
@@ -70,14 +86,14 @@ class ApiService {
         final responseMap = jsonDecode(utf8.decode(response.bodyBytes));
         final List<dynamic> data = responseMap['results'];
 
-        final users = data.map((user) => Report.fromJson(user)).toList();
+        final users = data.map((user) => Ticket.fromJson(user)).toList();
         return users;
       } catch (e) {
-        print('Error parsing JSON: $e');
+        debugPrint('Error parsing JSON: $e');
       }
     } else {
-      print('Request failed with status code: ${response.statusCode}');
-      print('Response content: ${response.body}');
+      debugPrint('Request failed with status code: ${response.statusCode}');
+      debugPrint('Response content: ${response.body}');
     }
 
     return [];

@@ -4,6 +4,7 @@ Widget textReports(
   String label,
   String hint,
   String value,
+  TextEditingController controller,
   void Function(String) onChangedCallback,
 ) {
   return Column(
@@ -11,6 +12,7 @@ Widget textReports(
       Directionality(
         textDirection: TextDirection.rtl,
         child: TextField(
+          controller: controller,
           textDirection: TextDirection.rtl,
           textAlign: TextAlign.right,
           decoration: InputDecoration(

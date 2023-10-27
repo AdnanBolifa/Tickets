@@ -1,39 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:jwt_auth/data/comment_config.dart';
+import 'package:jwt_auth/data/location_config.dart';
 import 'package:jwt_auth/data/problem_config.dart';
-import 'package:jwt_auth/data/report_config.dart';
+import 'package:jwt_auth/data/ticket_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
-import 'package:jwt_auth/screens/home.dart';
+import 'package:jwt_auth/screens/survey_page.dart';
 import 'package:jwt_auth/services/api_service.dart';
-import 'package:jwt_auth/theme/colors.dart';
-import 'package:jwt_auth/widgets/comment_card.dart';
+import 'package:jwt_auth/services/location_services.dart';
+import 'package:jwt_auth/widgets/map_box.dart';
 import 'package:jwt_auth/widgets/text_field.dart';
+import 'package:jwt_auth/widgets/comment_section.dart';
 
-class UpdateReport extends StatefulWidget {
-  final Report user;
-
-  const UpdateReport({Key? key, required this.user}) : super(key: key);
+class AddTicket extends StatefulWidget {
+  final Widget? comments;
+  final Ticket? ticket;
+  const AddTicket({Key? key, this.comments, this.ticket}) : super(key: key);
 
   @override
-  _UpdateReportScreenState createState() => _UpdateReportScreenState();
+  _AddReportScreenState createState() => _AddReportScreenState();
 }
 
-class _UpdateReportScreenState extends State<UpdateReport> {
-  // Declare variables to store user input
-  String name = '';
-  String account = '';
-  String phone = '';
-  String place = '';
-  String sector = '';
-  List<CommentData>? comments;
-  late int id;
-
+class _AddReportScreenState extends State<AddTicket> {
+  //Controllers
   TextEditingController nameController = TextEditingController();
   TextEditingController accController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController sectorController = TextEditingController();
   TextEditingController placeController = TextEditingController();
   TextEditingController commentController = TextEditingController();
+
+  String name = '';
+  String account = '';
+  String phone = '';
+  String place = '';
+  String sector = '';
+  double? longitude;
+  double? latitude;
 
   List<Problem> problemsCheckbox = [];
   List<Solution> solutionsCheckbox = [];
@@ -42,16 +43,25 @@ class _UpdateReportScreenState extends State<UpdateReport> {
   late List<bool> problemCheckboxGroup;
   late List<bool> solutionCheckboxGroup;
 
+  void init() {
+    if (widget.ticket != null) {
+      name = nameController.text = widget.ticket!.userName;
+      phone = phoneController.text = widget.ticket!.mobile;
+      place = placeController.text = widget.ticket!.place!;
+      sector = sectorController.text = widget.ticket!.sector!;
+      account = accController.text = widget.ticket!.acc!;
+      longitude = widget.ticket!.locationData!.longitude;
+      latitude = widget.ticket!.locationData!.latitude;
+    }
+    if (latitude != 0 && longitude != 0) {
+      locationController.text = '$latitude, $longitude';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    name = nameController.text = widget.user.userName;
-    phone = phoneController.text = widget.user.mobile;
-    place = placeController.text = widget.user.place!;
-    sector = sectorController.text = widget.user.sector!;
-    account = accController.text = widget.user.acc!;
-    comments = widget.user.comments;
-    id = widget.user.id;
+    init();
 
     ApiService().fetchProblems().then((problems) {
       setState(() {
@@ -59,11 +69,13 @@ class _UpdateReportScreenState extends State<UpdateReport> {
         problemCheckboxGroup =
             List.generate(problemsCheckbox.length, (index) => false);
 
-        for (var item in widget.user.problems!) {
-          for (var i = 0; i < problemsCheckbox.length; i++) {
-            if (item == problemsCheckbox[i].id) {
-              textTrueProblem.add(problemsCheckbox[i].name);
-              problemCheckboxGroup[i] = true;
+        if (widget.ticket != null) {
+          for (var item in widget.ticket!.problems!) {
+            for (var i = 0; i < problemsCheckbox.length; i++) {
+              if (item == problemsCheckbox[i].id) {
+                textTrueProblem.add(problemsCheckbox[i].name);
+                problemCheckboxGroup[i] = true;
+              }
             }
           }
         }
@@ -77,11 +89,13 @@ class _UpdateReportScreenState extends State<UpdateReport> {
         solutionCheckboxGroup =
             List.generate(solutionsCheckbox.length, (index) => false);
 
-        for (var item in widget.user.solutions!) {
-          for (var i = 0; i < solutionsCheckbox.length; i++) {
-            if (item == solutionsCheckbox[i].id) {
-              textTrueSolution.add(solutionsCheckbox[i].name);
-              solutionCheckboxGroup[i] = true;
+        if (widget.ticket != null) {
+          for (var item in widget.ticket!.solutions!) {
+            for (var i = 0; i < solutionsCheckbox.length; i++) {
+              if (item == solutionsCheckbox[i].id) {
+                textTrueSolution.add(solutionsCheckbox[i].name);
+                solutionCheckboxGroup[i] = true;
+              }
             }
           }
         }
@@ -98,6 +112,10 @@ class _UpdateReportScreenState extends State<UpdateReport> {
     accController.dispose();
     super.dispose();
   }
+
+  TextEditingController locationController = TextEditingController();
+  final LocationService locationService = LocationService();
+  LocationData? locationData;
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +143,7 @@ class _UpdateReportScreenState extends State<UpdateReport> {
           ),
         ],
         title: const Text(
-          'تعديل بلاغ',
+          'إضافة بلاغ',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -136,32 +154,82 @@ class _UpdateReportScreenState extends State<UpdateReport> {
           child: Column(
             children: [
               // Text Fields
-              textField('الاسم', 'خالد جمعة', nameController),
+              textReports(
+                'الاسم',
+                'خالد جمعة',
+                name,
+                nameController,
+                (value) {
+                  setState(() {
+                    name = value;
+                  });
+                },
+              ),
 
               Row(
                 children: [
                   Expanded(
-                    child: textField('الهاتف', '09XXXXXXXX', phoneController),
+                    child: textReports(
+                      'الهاتف',
+                      '091XXXXXXX',
+                      name,
+                      phoneController,
+                      (value) {
+                        setState(() {
+                          phone = value;
+                        });
+                      },
+                    ),
                   ),
                   const SizedBox(width: 8.0),
                   Expanded(
-                    child: textField('الحساب', 'HTIX00000', accController),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: textField('المكان', 'ش طرابلس', placeController),
-                  ),
-                  const SizedBox(width: 8.0),
-                  Expanded(
-                    child: textField('البرج', 'ZXX-SECX', sectorController),
+                    child: textReports(
+                      'الحساب',
+                      'HTIX00000',
+                      account,
+                      accController,
+                      (value) {
+                        setState(() {
+                          account = value;
+                        });
+                      },
+                    ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 16.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: textReports(
+                      'المكان',
+                      'ش طرابلس',
+                      place,
+                      placeController,
+                      (value) {
+                        setState(() {
+                          place = value;
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8.0),
+                  Expanded(
+                    child: textReports(
+                      'البرج',
+                      'س',
+                      sector,
+                      sectorController,
+                      (value) {
+                        setState(() {
+                          sector = value;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 15),
 
               ConstrainedBox(
                 constraints: const BoxConstraints(
@@ -234,8 +302,8 @@ class _UpdateReportScreenState extends State<UpdateReport> {
                   ),
                 ),
               ),
-
-              const SizedBox(height: 16.0),
+              // Checkboxes - Group Solutions
+              const SizedBox(height: 15.0),
 
               ConstrainedBox(
                 constraints: const BoxConstraints(
@@ -308,53 +376,90 @@ class _UpdateReportScreenState extends State<UpdateReport> {
                   ),
                 ),
               ),
-              //Card size Box
-              const SizedBox(height: 16.0),
 
-              if (comments!.isEmpty)
-                const Center(
-                  child: Text(
-                    'لا يوجد تعليقات',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                )
-              else
-                for (var comment in comments!) CommentCard(comment: comment),
-              const SizedBox(height: 10),
+              const SizedBox(
+                height: 15,
+              ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      ApiService().updateReport(
-                          comment: commentController.text, id: id);
-
-                      setState(() {
-                        comments?.add(CommentData(
-                            ticket: 0,
-                            comment: commentController.text,
-                            createdAt: 'الأن',
-                            createdBy: 'انت'));
-                      });
-                      commentController.clear();
-                    },
-                    style: ButtonStyle(
-                      minimumSize:
-                          MaterialStateProperty.all<Size>(const Size(50, 50)),
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                          AppColors.primaryColor),
-                    ),
-                    child: const Text(
-                      'اضافة تعليق',
-                      style: TextStyle(fontSize: 16),
+                  SizedBox(
+                    width: 120,
+                    height: 55,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        locationData = await locationService.getUserLocation();
+                        locationController.text =
+                            '${locationData!.latitude}, ${locationData!.longitude}';
+                        setState(() {
+                          longitude = locationData!.longitude;
+                          latitude = locationData!.latitude;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(60, 80),
+                          backgroundColor: Colors.grey[300]),
+                      child: const Center(
+                        // Center the text
+                        child: Text(
+                          "جلب احداثيات الموقع",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w300),
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8.0),
                   Expanded(
-                    child: textField('تعليق', 'اضف تعليق', commentController),
+                    child: Directionality(
+                      textDirection: TextDirection.rtl,
+                      child: TextField(
+                        controller: locationController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          labelText: 'احداثيات الموقع',
+                          hintStyle:
+                              TextStyle(fontSize: 14, color: Colors.grey),
+                          hintText: 'xx.xxxx, xx.xxxx',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
+
+              //*Map
+              const SizedBox(height: 10),
+              if (latitude != 0 && longitude != 0)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 2),
+                    ),
+                    width: 400,
+                    height: 200,
+                    child: MapBox(
+                        latitude: latitude!,
+                        longitude: longitude!,
+                        zoomLvl: 15),
+                  ),
+                ),
+              const SizedBox(
+                height: 15,
+              ),
+
+              const SizedBox(height: 16.0),
+              if (widget.ticket != null)
+                CommentSection(
+                    id: widget.ticket!.id,
+                    user: widget.ticket!,
+                    comments: widget.ticket!.comments),
             ],
           ),
         ),
@@ -376,18 +481,34 @@ class _UpdateReportScreenState extends State<UpdateReport> {
         .where((entry) => entry.value)
         .map((entry) => problemsCheckbox[entry.key].id)
         .toList();
+    //go to update or add functions
+    if (widget.ticket == null) {
+      ApiService().addReport(
+          name,
+          account,
+          phone,
+          place,
+          sector,
+          selectedProblemIds,
+          selectedSolutionIds,
+          locationData!.longitude!,
+          locationData!.latitude!);
+    } else {
+      ApiService().updateReport(
+          name: nameController.text,
+          acc: accController.text,
+          phone: phoneController.text,
+          place: placeController.text,
+          sector: sectorController.text,
+          id: widget.ticket!.id,
+          problems: selectedProblemIds,
+          solution: selectedSolutionIds,
+          longitude: locationData!.longitude!,
+          latitude: locationData!.latitude!);
+    }
 
-    ApiService().updateReport(
-        name: nameController.text,
-        acc: accController.text,
-        phone: phoneController.text,
-        place: placeController.text,
-        sector: sectorController.text,
-        id: id,
-        problems: selectedProblemIds,
-        solution: selectedSolutionIds);
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-      return const HomeScreen();
+      return SurveyPage(ticket: widget.ticket);
     }));
   }
 
