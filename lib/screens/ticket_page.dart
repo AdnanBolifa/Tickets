@@ -6,6 +6,7 @@ import 'package:jwt_auth/data/solution_config.dart';
 import 'package:jwt_auth/screens/survey_page.dart';
 import 'package:jwt_auth/services/api_service.dart';
 import 'package:jwt_auth/services/location_services.dart';
+import 'package:jwt_auth/widgets/map_box.dart';
 import 'package:jwt_auth/widgets/text_field.dart';
 import 'package:jwt_auth/widgets/comment_section.dart';
 
@@ -51,6 +52,8 @@ class _AddReportScreenState extends State<AddTicket> {
       account = accController.text = widget.ticket!.acc!;
       longitude = widget.ticket!.locationData!.longitude;
       latitude = widget.ticket!.locationData!.latitude;
+    }
+    if (latitude != 0 && longitude != 0) {
       locationController.text = '$latitude, $longitude';
     }
   }
@@ -387,6 +390,10 @@ class _AddReportScreenState extends State<AddTicket> {
                         locationData = await locationService.getUserLocation();
                         locationController.text =
                             '${locationData!.latitude}, ${locationData!.longitude}';
+                        setState(() {
+                          longitude = locationData!.longitude;
+                          latitude = locationData!.latitude;
+                        });
                       },
                       style: ElevatedButton.styleFrom(
                           minimumSize: const Size(60, 80),
@@ -425,6 +432,24 @@ class _AddReportScreenState extends State<AddTicket> {
                   ),
                 ],
               ),
+
+              //*Map
+              const SizedBox(height: 10),
+              if (latitude != 0 && longitude != 0)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 2),
+                    ),
+                    width: 400,
+                    height: 200,
+                    child: MapBox(
+                        latitude: latitude!,
+                        longitude: longitude!,
+                        zoomLvl: 15),
+                  ),
+                ),
               const SizedBox(
                 height: 15,
               ),

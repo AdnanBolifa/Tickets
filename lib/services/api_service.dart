@@ -89,11 +89,11 @@ class ApiService {
         final users = data.map((user) => Ticket.fromJson(user)).toList();
         return users;
       } catch (e) {
-        print('Error parsing JSON: $e');
+        debugPrint('Error parsing JSON: $e');
       }
     } else {
-      print('Request failed with status code: ${response.statusCode}');
-      print('Response content: ${response.body}');
+      debugPrint('Request failed with status code: ${response.statusCode}');
+      debugPrint('Response content: ${response.body}');
     }
 
     return [];
