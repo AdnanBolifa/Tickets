@@ -504,8 +504,8 @@ class _AddReportScreenState extends State<AddTicket> {
           id: widget.ticket!.id,
           problems: selectedProblemIds,
           solution: selectedSolutionIds,
-          longitude: locationData!.longitude!,
-          latitude: locationData!.latitude!);
+          longitude: longitude,
+          latitude: latitude);
     }
 
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {

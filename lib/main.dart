@@ -5,7 +5,8 @@ import 'package:jwt_auth/screens/home.dart';
 import 'package:jwt_auth/theme/colors.dart';
 import 'package:flutter/services.dart';
 import 'package:jwt_auth/theme/theme.dart';
-//! make every field in the add ticket page required 
+
+//todo make every field in the add ticket page required
 void main() async {
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: AppColors.primaryColor,
@@ -14,6 +15,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final accessToken = await AuthService().getAccessToken();
+  print('Access Token: $accessToken');
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
