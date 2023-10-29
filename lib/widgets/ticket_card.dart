@@ -60,11 +60,11 @@ class TicketCard extends StatelessWidget {
               ),
               const SizedBox(height: 5),
               Text(
-                ticket.place!,
+                'المكان:  ${ticket.place!}',
                 style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.black,
-                ),
+                    fontSize: 12,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold),
                 textDirection: TextDirection.ltr,
               ),
               const SizedBox(height: 5),
@@ -77,85 +77,84 @@ class TicketCard extends StatelessWidget {
                 textDirection: TextDirection.ltr,
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: const EdgeInsets.all(3),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(5.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.rectangle,
-                            color: Colors.red[300],
-                          ),
-                          child: IconButton(
-                            onPressed: () {
-                              // Show a custom SnackBar with a close icon on the left, label in the middle, and text on the right
-                              final snackBar = SnackBar(
-                                content: Row(
-                                  children: [
-                                    InkWell(
-                                      borderRadius: BorderRadius.circular(10),
-                                      onTap: () {
-                                        ScaffoldMessenger.of(context)
-                                            .hideCurrentSnackBar();
-                                      },
-                                      child: const Icon(
-                                        Icons.close, // Close icon
-                                        color: Colors.white,
-                                      ),
+                  Padding(
+                    padding: const EdgeInsets.all(3),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(5.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          color: Colors.red[300],
+                        ),
+                        child: IconButton(
+                          onPressed: () {
+                            final snackBar = SnackBar(
+                              content: Row(
+                                children: [
+                                  InkWell(
+                                    borderRadius: BorderRadius.circular(10),
+                                    onTap: () {
+                                      ScaffoldMessenger.of(context)
+                                          .hideCurrentSnackBar();
+                                    },
+                                    child: const Icon(
+                                      Icons.close, // Close icon
+                                      color: Colors.white,
                                     ),
-                                    SnackBarAction(
-                                      label: 'نعم',
-                                      onPressed: () {
-                                        //todo add Ticket progress API here
-                                        debugPrint('start timer');
-                                      },
+                                  ),
+                                  SnackBarAction(
+                                    label: 'نعم',
+                                    onPressed: () {
+                                      //todo add Ticket progress API here
+                                      debugPrint('start timer');
+                                    },
+                                  ),
+                                  const Expanded(
+                                    child: Text(
+                                      'هل انت متأكد من بدأ المؤقت؟',
+                                      textAlign: TextAlign.right,
                                     ),
-                                    const Expanded(
-                                      child: Text(
-                                        'هل انت متأكد من بدأ المؤقت؟',
-                                        textAlign: TextAlign.right,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
+                                  ),
+                                ],
+                              ),
+                            );
 
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackBar);
-                            },
-                            icon: const Icon(
-                              Icons.watch_later,
-                              size: 30,
-                              color: Colors.black,
-                            ),
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
+                          },
+                          icon: const Icon(
+                            Icons.watch_later,
+                            size: 30,
+                            color: Colors.black,
                           ),
                         ),
                       ),
                     ),
                   ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: const EdgeInsets.all(3),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(5.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.rectangle,
-                            color: Colors.grey[300],
-                          ),
-                          child: IconButton(
-                            onPressed: () {
-                              _makePhoneCall(ticket.mobile);
-                            },
-                            icon: const Icon(
-                              Icons.phone,
-                              size: 30,
-                              color: Colors.black,
+                  //Call button
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: Padding(
+                        padding: const EdgeInsets.all(3),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(5.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.rectangle,
+                              color: Colors.grey[300],
+                            ),
+                            child: IconButton(
+                              onPressed: () {
+                                _makePhoneCall(ticket.mobile);
+                              },
+                              icon: const Icon(
+                                Icons.phone,
+                                size: 30,
+                                color: Colors.black,
+                              ),
                             ),
                           ),
                         ),
