@@ -53,7 +53,7 @@ class _AddReportScreenState extends State<AddTicket> {
       longitude = widget.ticket!.locationData!.longitude;
       latitude = widget.ticket!.locationData!.latitude;
     }
-    if (latitude != 0 && longitude != 0) {
+    if (latitude != 0 && longitude != 0 && longitude != null) {
       locationController.text = '$latitude, $longitude';
     }
   }
@@ -435,7 +435,7 @@ class _AddReportScreenState extends State<AddTicket> {
 
               //*Map
               const SizedBox(height: 10),
-              if (latitude != 0 && longitude != 0)
+              if (latitude != 0 && longitude != 0 && longitude != null)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(30),
                   child: Container(
@@ -448,7 +448,7 @@ class _AddReportScreenState extends State<AddTicket> {
                         latitude: latitude!,
                         longitude: longitude!,
                         zoomLvl: 15),
-                  ),
+                  ),  
                 ),
               const SizedBox(
                 height: 15,
