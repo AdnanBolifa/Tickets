@@ -81,54 +81,49 @@ class TicketCard extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(3),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(5.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.rectangle,
-                          color: Colors.red[300],
-                        ),
-                        child: IconButton(
-                          onPressed: () {
-                            final snackBar = SnackBar(
-                              content: Row(
-                                children: [
-                                  InkWell(
-                                    borderRadius: BorderRadius.circular(10),
-                                    onTap: () {
-                                      ScaffoldMessenger.of(context)
-                                          .hideCurrentSnackBar();
-                                    },
-                                    child: const Icon(
-                                      Icons.close, // Close icon
-                                      color: Colors.white,
-                                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        shape: BoxShape.rectangle,
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          final snackBar = SnackBar(
+                            content: Row(
+                              children: [
+                                InkWell(
+                                  borderRadius: BorderRadius.circular(10),
+                                  onTap: () {
+                                    ScaffoldMessenger.of(context)
+                                        .hideCurrentSnackBar();
+                                  },
+                                  child: const Icon(
+                                    Icons.close, // Close icon
+                                    color: Colors.white,
                                   ),
-                                  SnackBarAction(
-                                    label: 'نعم',
-                                    onPressed: () {
-                                      //todo add Ticket progress API here
-                                      debugPrint('start timer');
-                                    },
+                                ),
+                                SnackBarAction(
+                                  label: 'نعم',
+                                  onPressed: () {
+                                    //todo add Ticket progress API here
+                                    debugPrint('start timer');
+                                  },
+                                ),
+                                const Expanded(
+                                  child: Text(
+                                    'هل انت متأكد من بدأ المؤقت؟',
+                                    textAlign: TextAlign.right,
                                   ),
-                                  const Expanded(
-                                    child: Text(
-                                      'هل انت متأكد من بدأ المؤقت؟',
-                                      textAlign: TextAlign.right,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
+                                ),
+                              ],
+                            ),
+                          );
 
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(snackBar);
-                          },
-                          icon: const Icon(
-                            Icons.watch_later,
-                            size: 30,
-                            color: Colors.black,
-                          ),
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        },
+                        child: const Text(
+                          'بدأ المهمة الان',
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
