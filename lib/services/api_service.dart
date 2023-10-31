@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_auth/data/api_config.dart';
 import 'package:jwt_auth/data/comment_config.dart';
+import 'package:jwt_auth/data/location_config.dart';
 import 'package:jwt_auth/data/problem_config.dart';
 import 'package:jwt_auth/data/ticket_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
@@ -114,6 +115,14 @@ class ApiService {
   Future<List<Solution>> fetchSolutions() async {
     final response = await _performGetRequest(APIConfig.solutionsUrl);
     return _parseSolutionsResponse(response);
+  }
+
+  Future<void> startTimer(LocationData location) async {
+    final body = {
+      "long": location.longitude,
+      "lat": location.latitude,
+    };
+    _performPostRequest(APIConfig.timer, body);
   }
 
   //helper functions

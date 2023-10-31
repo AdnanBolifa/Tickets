@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:jwt_auth/data/location_config.dart';
 import 'package:jwt_auth/data/ticket_config.dart';
+import 'package:jwt_auth/services/api_service.dart';
+import 'package:jwt_auth/services/location_services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TicketCard extends StatelessWidget {
   final Ticket ticket;
   final bool isDisabled;
 
-  const TicketCard({Key? key, required this.ticket, required this.isDisabled})
+  TicketCard({Key? key, required this.ticket, required this.isDisabled})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final LocationService locationService = LocationService();
+    LocationData? locationData;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
@@ -104,9 +109,11 @@ class TicketCard extends StatelessWidget {
                                 ),
                                 SnackBarAction(
                                   label: 'نعم',
-                                  onPressed: () {
+                                  onPressed: () async {
                                     //todo add Ticket progress API here
-                                    debugPrint('start timer');
+                                    locationData =
+                                        await locationService.getUserLocation();
+                                    ApiService().startTimer(locationData!);
                                   },
                                 ),
                                 const Expanded(
