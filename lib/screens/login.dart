@@ -40,8 +40,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(
                 height: 25,
               ),
-              textField('إسم المستخدم', 'Hello, World', emailController,
-                  isHide: true),
+              textField('إسم المستخدم', 'Hello, World', emailController),
               textField('كلمة المرور', 'sudo su', passwordController,
                   isHide: true),
               ElevatedButton(

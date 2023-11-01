@@ -113,12 +113,13 @@ class TicketCard extends StatelessWidget {
                                     //todo add Ticket progress API here
                                     locationData =
                                         await locationService.getUserLocation();
-                                    ApiService().startTimer(locationData!);
+                                    ApiService()
+                                        .startTimer(locationData!, ticket.id);
                                   },
                                 ),
                                 const Expanded(
                                   child: Text(
-                                    'هل انت متأكد من بدأ المؤقت؟',
+                                    'هل انت متأكد من بدأ المهمة؟',
                                     textAlign: TextAlign.right,
                                   ),
                                 ),

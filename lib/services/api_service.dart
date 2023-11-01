@@ -117,12 +117,12 @@ class ApiService {
     return _parseSolutionsResponse(response);
   }
 
-  Future<void> startTimer(LocationData location) async {
+  Future<void> startTimer(LocationData location, int ticket) async {
     final body = {
       "long": location.longitude,
       "lat": location.latitude,
     };
-    _performPostRequest(APIConfig.timer, body);
+    _performPostRequest('${APIConfig.timer}$ticket/start', body);
   }
 
   //helper functions
@@ -145,7 +145,7 @@ class ApiService {
         'Content-Type': 'application/json',
       },
     );
-    if (response.statusCode == 201) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       Fluttertoast.showToast(
         msg: "تمت اضافة البيانات بنجاح!",
         toastLength: Toast.LENGTH_SHORT,
@@ -159,7 +159,7 @@ class ApiService {
         gravity: ToastGravity.BOTTOM,
         textColor: Colors.white,
       );
-      throw Exception('Failed to add data: ${response.statusCode}');
+      throw Exception('Failed to add data: ${response.body}');
     }
   }
 

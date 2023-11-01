@@ -9,5 +9,5 @@ class APIConfig {
   static const String problemsUrl = '${baseUrl}ticket/problems/list';
   static const String addUrl = '${baseUrl}ticket/add';
   static const String updateUrl = '${baseUrl}ticket/';
-  static const String timer = '${baseUrl}v2/ticket/49/start';
+  static const String timer = '${baseUrl}v2/ticket/';
 }
