@@ -109,10 +109,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   : ListView.builder(
                       itemCount: ticketList.length,
                       itemBuilder: (context, index) {
-                        final isTicketEnabled =
-                            ticketList[index].enable ?? false;
                         return GestureDetector(
-                          onTap: isTicketEnabled
+                          onTap: ticketList[index].status == 'inprogress'
                               ? () {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
@@ -124,7 +122,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               : null,
                           child: TicketCard(
                             ticket: ticketList[index],
-                            isDisabled: !isTicketEnabled,
                           ),
                         );
                       },

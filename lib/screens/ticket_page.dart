@@ -121,6 +121,7 @@ class _AddReportScreenState extends State<AddTicket> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         actions: [
           Container(
             margin: const EdgeInsets.all(8.0), // Margin for spacing

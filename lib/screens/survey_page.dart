@@ -99,7 +99,6 @@ class _SurveyPageState extends State<SurveyPage> {
                 padding: const EdgeInsets.all(16.0),
               ),
               onPressed: () {
-                widget.ticket!.enable = false;
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => const HomeScreen(),
