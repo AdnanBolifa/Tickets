@@ -125,6 +125,11 @@ class ApiService {
     _performPostRequest('${APIConfig.timer}$ticket/start', body);
   }
 
+  Future<void> fetchSurvey() async {
+
+  
+  }
+
   //helper functions
   Future<http.Response> _performGetRequest(String url) async {
     final response = await http.get(Uri.parse(url));

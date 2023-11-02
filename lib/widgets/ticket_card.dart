@@ -5,6 +5,7 @@ import 'package:jwt_auth/data/ticket_config.dart';
 import 'package:jwt_auth/screens/ticket_page.dart';
 import 'package:jwt_auth/services/api_service.dart';
 import 'package:jwt_auth/services/location_services.dart';
+import 'package:jwt_auth/theme/colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TicketCard extends StatelessWidget {
@@ -98,6 +99,12 @@ class TicketCard extends StatelessWidget {
                               shape: BoxShape.rectangle,
                             ),
                             child: ElevatedButton(
+                              style: ticket.status == 'notstarted'
+                                  ? ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primaryColor)
+                                  : ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.grey[300],
+                                    ),
                               onPressed: ticket.status == 'notstarted'
                                   ? () {
                                       final snackBar = SnackBar(
@@ -151,10 +158,13 @@ class TicketCard extends StatelessWidget {
                                       Fluttertoast.showToast(
                                           msg: 'هذه المهمة قد بدأت بالفعل');
                                     },
-                              child: const Text(
-                                'بدأ المهمة الان',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
+                              child: Text('بدأ المهمة الان',
+                                  style: ticket.status == 'notstarted'
+                                      ? const TextStyle(
+                                          fontWeight: FontWeight.bold)
+                                      : TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey[600])),
                             ),
                           ),
                         ),
