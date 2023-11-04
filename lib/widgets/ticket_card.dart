@@ -15,9 +15,9 @@ class TicketCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    MaterialColor inProgress = Colors.green;
-    MaterialColor idle = Colors.red;
-    MaterialColor closed = Colors.grey;
+    MaterialColor inProgress = Colors.yellow;
+    MaterialColor idle = Colors.grey;
+    MaterialColor closed = Colors.green;
 
     final LocationService locationService = LocationService();
     LocationData? locationData;
@@ -31,15 +31,13 @@ class TicketCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10.0),
               ),
               child: Container(
-                decoration: ticket.status == 'notstarted'
-                    ? BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(10),
-                      )
-                    : BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                decoration:
+                    ticket.status == 'notstarted' || ticket.status == 'done'
+                        ? BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(10),
+                          )
+                        : null,
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,74 +96,85 @@ class TicketCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                               shape: BoxShape.rectangle,
                             ),
-                            child: ElevatedButton(
-                              style: ticket.status == 'notstarted'
-                                  ? ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.primaryColor)
-                                  : ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.grey[300],
-                                    ),
-                              onPressed: ticket.status == 'notstarted'
-                                  ? () {
-                                      final snackBar = SnackBar(
-                                        content: Row(
-                                          children: [
-                                            InkWell(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              onTap: () {
-                                                ScaffoldMessenger.of(context)
-                                                    .hideCurrentSnackBar();
-                                              },
-                                              child: const Icon(
-                                                Icons.close, // Close icon
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            SnackBarAction(
-                                              label: 'نعم',
-                                              onPressed: () async {
-                                                locationData =
-                                                    await locationService
-                                                        .getUserLocation();
-                                                ApiService().startTimer(
-                                                    locationData!, ticket.id);
-                                                if (context.mounted) {
-                                                  Navigator.of(context).push(
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          AddTicket(
-                                                              ticket: ticket),
+                            child: ticket.status != 'done'
+                                //! Start button has long delay
+                                ? ElevatedButton(
+                                    style: ticket.status == 'notstarted'
+                                        ? ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                AppColors.primaryColor)
+                                        : ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.grey[300],
+                                          ),
+                                    onPressed: ticket.status == 'notstarted'
+                                        ? () {
+                                            final snackBar = SnackBar(
+                                              content: Row(
+                                                children: [
+                                                  InkWell(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    onTap: () {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .hideCurrentSnackBar();
+                                                    },
+                                                    child: const Icon(
+                                                      Icons.close, // Close icon
+                                                      color: Colors.white,
                                                     ),
-                                                  );
-                                                }
-                                              },
-                                            ),
-                                            const Expanded(
-                                              child: Text(
-                                                'هل انت متأكد من بدأ المهمة؟',
-                                                textAlign: TextAlign.right,
+                                                  ),
+                                                  SnackBarAction(
+                                                    label: 'نعم',
+                                                    onPressed: () async {
+                                                      locationData =
+                                                          await locationService
+                                                              .getUserLocation();
+                                                      ApiService().startTimer(
+                                                          locationData!,
+                                                          ticket.id);
+                                                      if (context.mounted) {
+                                                        Navigator.of(context)
+                                                            .push(
+                                                          MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                AddTicket(
+                                                                    ticket:
+                                                                        ticket),
+                                                          ),
+                                                        );
+                                                      }
+                                                    },
+                                                  ),
+                                                  const Expanded(
+                                                    child: Text(
+                                                      'هل انت متأكد من بدأ المهمة؟',
+                                                      textAlign:
+                                                          TextAlign.right,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
+                                            );
 
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(snackBar);
-                                    }
-                                  : () {
-                                      Fluttertoast.showToast(
-                                          msg: 'هذه المهمة قد بدأت بالفعل');
-                                    },
-                              child: Text('بدأ المهمة الان',
-                                  style: ticket.status == 'notstarted'
-                                      ? const TextStyle(
-                                          fontWeight: FontWeight.bold)
-                                      : TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.grey[600])),
-                            ),
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(snackBar);
+                                          }
+                                        : () {
+                                            Fluttertoast.showToast(
+                                                msg:
+                                                    'هذه المهمة قد بدأت بالفعل');
+                                          },
+                                    child: Text('بدأ المهمة الان',
+                                        style: ticket.status == 'notstarted'
+                                            ? const TextStyle(
+                                                fontWeight: FontWeight.bold)
+                                            : TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.grey[600])),
+                                  )
+                                : null,
                           ),
                         ),
                         //Call button
@@ -181,16 +190,18 @@ class TicketCard extends StatelessWidget {
                                     shape: BoxShape.rectangle,
                                     color: Colors.grey[300],
                                   ),
-                                  child: IconButton(
-                                    onPressed: () {
-                                      _makePhoneCall(ticket.mobile);
-                                    },
-                                    icon: const Icon(
-                                      Icons.phone,
-                                      size: 30,
-                                      color: Colors.black,
-                                    ),
-                                  ),
+                                  child: ticket.status != 'done'
+                                      ? IconButton(
+                                          onPressed: () {
+                                            _makePhoneCall(ticket.mobile);
+                                          },
+                                          icon: const Icon(
+                                            Icons.phone,
+                                            size: 30,
+                                            color: Colors.black,
+                                          ),
+                                        )
+                                      : null,
                                 ),
                               ),
                             ),

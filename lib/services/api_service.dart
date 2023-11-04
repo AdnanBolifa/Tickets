@@ -122,12 +122,27 @@ class ApiService {
       "long": location.longitude,
       "lat": location.latitude,
     };
-    _performPostRequest('${APIConfig.timer}$ticket/start', body);
+    await _performPostRequest('${APIConfig.timer}$ticket/start', body);
   }
 
-  Future<void> fetchSurvey() async {
+  Future<void> fetchSurvey() async {}
 
-  
+  Future<void> submitSurvey(int id, List<String> answers, int count) async {
+    final List<Map<String, dynamic>> answersList = [];
+
+    for (int i = 1; i <= count; i++) {
+      answersList.add({
+        "question": i,
+        "answer": answers[i - 1],
+      });
+    }
+
+    final body = {
+      "ticket": id,
+      "answers_list": answersList,
+    };
+
+    await _performPostRequest(APIConfig.submitSurvey, body);
   }
 
   //helper functions
@@ -209,9 +224,11 @@ class ApiService {
       await authService.getNewAccessToken();
       return _performAuthenticatedGetRequest(url, authService, context);
     } else if (response.statusCode != 200 && context != null) {
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => const LoginPage(),
-      ));
+      if (context.mounted) {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => const LoginPage(),
+        ));
+      }
       authService.logout();
     }
 
