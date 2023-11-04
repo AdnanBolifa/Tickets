@@ -14,8 +14,15 @@ class MultiSurvey {
   });
 
   factory MultiSurvey.fromJson(Map<String, dynamic> json) {
+    List<dynamic> answersList = json['answers'];
+
+    List<MultiAnswers> parsedAnswers = answersList
+        .map((answerJson) => MultiAnswers.fromJson(answerJson))
+        .toList();
+
     return MultiSurvey(
-      id: json['ticket'] as int,
+      id: json['id'] as int,
+      answers: parsedAnswers,
       question: json['question'],
       questionEN: json['questionEN'],
     );

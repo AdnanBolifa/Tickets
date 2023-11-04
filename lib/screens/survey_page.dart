@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:jwt_auth/data/multi_survey_config.dart';
 import 'package:jwt_auth/data/ticket_config.dart';
-import 'package:jwt_auth/screens/home.dart';
 import 'package:jwt_auth/services/api_service.dart';
 
 class SurveyPage extends StatefulWidget {
@@ -16,20 +16,26 @@ class SurveyPage extends StatefulWidget {
 class _SurveyPageState extends State<SurveyPage> {
   int selectedRating = 0;
   Map<int, int> questionRatings = {};
+  List<MultiSurvey> survey = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _getSurvey();
+  }
+
+  Future<void> _getSurvey() async {
+    final multi = await ApiService().fetchSurvey();
+    setState(() {
+      survey = multi;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.language),
-            onPressed: () {
-              _showLanguagePicker(context);
-            },
-          ),
-        ],
         title: const Text('Survey Page'),
       ),
       body: Container(
@@ -37,28 +43,33 @@ class _SurveyPageState extends State<SurveyPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            for (int i = 1; i <= 5; i++)
+            for (int i = 0; i < survey.length; i++)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Question $i:',
+                    'السؤال ${i + 1}: ${survey[i].question}',
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Row(
                     children: [
-                      buildRadio(i, 0),
-                      buildRadio(i, 1),
-                      buildRadio(i, 2),
-                      buildRadio(i, 3),
+                      for (int j = 0; j < survey[i].answers!.length; j++)
+                        Row(
+                          children: [
+                            buildRadio(i, j),
+                            Text(survey[i].answers![j].text),
+                          ],
+                        ),
                     ],
                   ),
                 ],
               ),
             const SizedBox(height: 20.0),
             const Text(
-              'Overall Rating:',
+              'التقييم الكلي:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Center(
@@ -82,13 +93,13 @@ class _SurveyPageState extends State<SurveyPage> {
             ),
             const SizedBox(height: 20.0),
             const Text(
-              'Comments:',
+              'الملاحظات:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             TextFormField(
               maxLines: 4,
               decoration: const InputDecoration(
-                hintText: 'Enter your comments...',
+                hintText: 'اضف ملاحظاتك',
                 border: OutlineInputBorder(),
                 contentPadding: EdgeInsets.all(12.0),
               ),
@@ -103,13 +114,14 @@ class _SurveyPageState extends State<SurveyPage> {
               onPressed: () async {
                 List<String> list = ['a', 'b'];
                 await ApiService().submitSurvey(widget.ticket!.id, list, 2);
-                if (context.mounted) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const HomeScreen(),
-                    ),
-                  );
-                }
+
+                // if (context.mounted) {
+                //   Navigator.of(context).push(
+                //     MaterialPageRoute(
+                //       builder: (context) => const HomeScreen(),
+                //     ),
+                //   );
+                // }
               },
               child: const Text(
                 'إرسال',
@@ -124,7 +136,7 @@ class _SurveyPageState extends State<SurveyPage> {
 
   Widget buildRadio(int question, int value) {
     return Row(
-      children: [
+      children: [ 
         Radio(
           value: value,
           groupValue: questionRatings[question] ?? -1,
@@ -134,56 +146,7 @@ class _SurveyPageState extends State<SurveyPage> {
             });
           },
         ),
-        Text(getRatingText(value), style: const TextStyle(fontSize: 16)),
       ],
-    );
-  }
-
-  String getRatingText(int value) {
-    switch (value) {
-      case 0:
-        return 'Bad';
-      case 1:
-        return 'OK';
-      case 2:
-        return 'Good';
-      case 3:
-        return 'Excellent';
-      default:
-        return 'N/A';
-    }
-  }
-
-  // Function to show a language picker dialog
-  void _showLanguagePicker(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Select Language').tr(),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ListTile(
-                title: const Text('English').tr(),
-                onTap: () {
-                  context
-                      .setLocale(const Locale('en', 'US')); // Switch to English
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: const Text('عربى').tr(),
-                onTap: () {
-                  context
-                      .setLocale(const Locale('ar', 'SA')); // Switch to Arabic
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }
