@@ -121,6 +121,7 @@ class _AddReportScreenState extends State<AddTicket> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: true,
         actions: [
           Container(
             margin: const EdgeInsets.all(8.0), // Margin for spacing
@@ -436,19 +437,20 @@ class _AddReportScreenState extends State<AddTicket> {
               //*Map
               const SizedBox(height: 10),
               if (latitude != 0 && longitude != 0 && longitude != null)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(30),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black, width: 2),
-                    ),
-                    width: 400,
-                    height: 200,
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.grey, width: 2),
+                  ),
+                  width: 400,
+                  height: 200,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
                     child: MapBox(
                         latitude: latitude!,
                         longitude: longitude!,
                         zoomLvl: 15),
-                  ),  
+                  ),
                 ),
               const SizedBox(
                 height: 15,
