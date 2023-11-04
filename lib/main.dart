@@ -16,7 +16,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final accessToken = await AuthService().getAccessToken();
-  print('Access Token: $accessToken');
+  debugPrint('Access Token: $accessToken');
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
