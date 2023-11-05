@@ -434,7 +434,7 @@ class _AddReportScreenState extends State<AddTicket> {
                 ],
               ),
 
-              //*Map
+              //*Location Map
               const SizedBox(height: 10),
               if (latitude != 0 && longitude != 0 && longitude != null)
                 Container(
