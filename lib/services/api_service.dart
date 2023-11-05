@@ -131,20 +131,13 @@ class ApiService {
     return _parseSurveyResponse(response);
   }
 
-  Future<void> submitSurvey(int id, List<String> answers, int count) async {
-    final List<Map<String, dynamic>> answersList = [];
-
-    for (int i = 1; i <= count; i++) {
-      answersList.add({
-        "question": i,
-        "answer": answers[i - 1],
-      });
-    }
-
+  Future<void> submitSurvey(
+      int id, List<Map<String, dynamic>> answersList) async {
     final body = {
       "ticket": id,
       "answers_list": answersList,
     };
+    print(jsonEncode(body));
     await _performPostRequest(APIConfig.submitSurveyUrl, body);
   }
 
@@ -275,12 +268,12 @@ class ApiService {
     }
   }
 
-  static late final int count;
   List<MultiSurvey> _parseSurveyResponse(http.Response response) {
     if (response.statusCode == 200) {
       final responseMap = jsonDecode(utf8.decode(response.bodyBytes));
       final List<dynamic> results = responseMap['results'];
-      count = responseMap['count'] as int;
+      //todo
+      //int count = responseMap['count'] as int;
 
       final survey = results.map((item) => MultiSurvey.fromJson(item)).toList();
       return survey;
