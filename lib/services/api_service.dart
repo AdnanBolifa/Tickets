@@ -281,7 +281,6 @@ class ApiService {
       final responseMap = jsonDecode(utf8.decode(response.bodyBytes));
       final List<dynamic> results = responseMap['results'];
       count = responseMap['count'] as int;
-      print(count);
 
       final survey = results.map((item) => MultiSurvey.fromJson(item)).toList();
       return survey;

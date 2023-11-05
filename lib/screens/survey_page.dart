@@ -113,7 +113,7 @@ class _SurveyPageState extends State<SurveyPage> {
               ),
               onPressed: () async {
                 List<String> list = ['a', 'b'];
-                await ApiService().submitSurvey(widget.ticket!.id, list, 2);
+                await ApiService().submitSurvey(widget.ticket!.id, list, ApiService.count);
 
                 // if (context.mounted) {
                 //   Navigator.of(context).push(
