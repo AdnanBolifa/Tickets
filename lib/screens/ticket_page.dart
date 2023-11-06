@@ -573,7 +573,8 @@ class _AddReportScreenState extends State<AddTicket> {
         account.isEmpty ||
         phone.isEmpty ||
         place.isEmpty ||
-        sector.isEmpty) {
+        sector.isEmpty ||
+        locationController.text.isEmpty) {
       Fluttertoast.showToast(msg: "الرجاء ادخال ملء الحقول");
       return;
     }
