@@ -2,6 +2,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jwt_auth/data/multi_survey_config.dart';
 import 'package:jwt_auth/data/ticket_config.dart';
 import 'package:jwt_auth/screens/home.dart';
@@ -201,29 +202,34 @@ class _SurveyPageState extends State<SurveyPage> {
                               onPressed: () async {
                                 List<Map<String, dynamic>> answersList = [];
 
-                                for (int i = 0; i < survey.length - 2; i++) {
+                                for (int i = 0; i < survey.length; i++) {
                                   if (questionRatings.containsKey(i)) {
                                     int answer = questionRatings[i]!;
                                     answersList.add({
                                       "question": survey[i].id,
                                       "answer": answer,
                                     });
-                                  } else {
-                                    String answer = answers[i];
+                                  }
+                                  if (survey[i].type == 'rating') {
                                     answersList.add({
                                       "question": survey[i].id,
-                                      "answer": answer,
+                                      "answer": selectedRating,
+                                    });
+                                  }
+                                  if (survey[i].type == 'text') {
+                                    answersList.add({
+                                      "question": survey[i].id,
+                                      "answer": notes.text,
                                     });
                                   }
                                 }
-                                answersList.add({
-                                  "question": survey[survey.length - 2].id,
-                                  "answer": selectedRating,
-                                });
-                                answersList.add({
-                                  "question": survey[survey.length - 1].id,
-                                  "answer": notes.text,
-                                });
+                                //?if you want all the feilds required uncoomment this
+                                //answersList.length == survey.length
+                                if (answersList.isEmpty || notes.text.isEmpty) {
+                                  Fluttertoast.showToast(
+                                      msg: 'الرجاء تعبئة الحقول');
+                                  return;
+                                }
                                 await ApiService().submitSurvey(
                                     widget.ticket!.id, answersList);
                                 if (context.mounted) {
