@@ -1,4 +1,6 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jwt_auth/data/location_config.dart';
 import 'package:jwt_auth/data/problem_config.dart';
 import 'package:jwt_auth/data/ticket_config.dart';
@@ -63,44 +65,61 @@ class _AddReportScreenState extends State<AddTicket> {
     super.initState();
     init();
 
-    ApiService().fetchProblems().then((problems) {
-      setState(() {
-        problemsCheckbox = problems;
-        problemCheckboxGroup =
-            List.generate(problemsCheckbox.length, (index) => false);
+    // Check for internet connectivity
+    checkInternetConnectivity().then((hasInternet) {
+      if (hasInternet) {
+        // Fetch problems and handle errors
+        ApiService().fetchProblems().then((problems) {
+          setState(() {
+            problemsCheckbox = problems;
+            problemCheckboxGroup =
+                List.generate(problemsCheckbox.length, (index) => false);
 
-        if (widget.ticket != null) {
-          for (var item in widget.ticket!.problems!) {
-            for (var i = 0; i < problemsCheckbox.length; i++) {
-              if (item == problemsCheckbox[i].id) {
-                textTrueProblem.add(problemsCheckbox[i].name);
-                problemCheckboxGroup[i] = true;
+            if (widget.ticket != null) {
+              for (var item in widget.ticket!.problems!) {
+                for (var i = 0; i < problemsCheckbox.length; i++) {
+                  if (item == problemsCheckbox[i].id) {
+                    textTrueProblem.add(problemsCheckbox[i].name);
+                    problemCheckboxGroup[i] = true;
+                  }
+                }
               }
             }
-          }
-        }
-      });
-    });
+          });
+        }).catchError((error) {
+          print("Error fetching problems: $error");
+        });
 
-    // Fetch solutions and update the state when done.
-    ApiService().fetchSolutions().then((solutions) {
-      setState(() {
-        solutionsCheckbox = solutions;
-        solutionCheckboxGroup =
-            List.generate(solutionsCheckbox.length, (index) => false);
+        // Fetch solutions and handle errors
+        ApiService().fetchSolutions().then((solutions) {
+          setState(() {
+            solutionsCheckbox = solutions;
+            solutionCheckboxGroup =
+                List.generate(solutionsCheckbox.length, (index) => false);
 
-        if (widget.ticket != null) {
-          for (var item in widget.ticket!.solutions!) {
-            for (var i = 0; i < solutionsCheckbox.length; i++) {
-              if (item == solutionsCheckbox[i].id) {
-                textTrueSolution.add(solutionsCheckbox[i].name);
-                solutionCheckboxGroup[i] = true;
+            if (widget.ticket != null) {
+              for (var item in widget.ticket!.solutions!) {
+                for (var i = 0; i < solutionsCheckbox.length; i++) {
+                  if (item == solutionsCheckbox[i].id) {
+                    textTrueSolution.add(solutionsCheckbox[i].name);
+                    solutionCheckboxGroup[i] = true;
+                  }
+                }
               }
             }
-          }
-        }
-      });
+          });
+        }).catchError((error) {
+          print("Error fetching solutions: $error");
+        });
+      } else {
+        print("No internet connection.");
+      }
     });
+  }
+
+  Future<bool> checkInternetConnectivity() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    return connectivityResult != ConnectivityResult.none;
   }
 
   @override
@@ -124,7 +143,7 @@ class _AddReportScreenState extends State<AddTicket> {
         automaticallyImplyLeading: true,
         actions: [
           Container(
-            margin: const EdgeInsets.all(8.0), // Margin for spacing
+            margin: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8.0),
             ),
@@ -149,327 +168,357 @@ class _AddReportScreenState extends State<AddTicket> {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // Text Fields
-              textReports(
-                'الاسم',
-                'خالد جمعة',
-                name,
-                nameController,
-                (value) {
-                  setState(() {
-                    name = value;
-                  });
-                },
+      body: FutureBuilder<bool>(
+        future: checkInternetConnectivity(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Display a loading indicator while checking for connectivity.
+            return const CircularProgressIndicator();
+          } else if (snapshot.hasError) {
+            // Handle any errors that occur during connectivity check.
+            return Text("Error: ${snapshot.error}");
+          } else if (snapshot.data == false) {
+            // No internet connection, display an error message.
+            return const Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Text(
+                        "No internet connection. Please check your network settings."),
+                  ],
+                ),
               ),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: textReports(
-                      'الهاتف',
-                      '091XXXXXXX',
+            );
+          } else {
+            // Internet is available, display your actual widget.
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    // Text Fields
+                    textReports(
+                      'الاسم',
+                      'خالد جمعة',
                       name,
-                      phoneController,
+                      nameController,
                       (value) {
                         setState(() {
-                          phone = value;
+                          name = value;
                         });
                       },
                     ),
-                  ),
-                  const SizedBox(width: 8.0),
-                  Expanded(
-                    child: textReports(
-                      'الحساب',
-                      'HTIX00000',
-                      account,
-                      accController,
-                      (value) {
-                        setState(() {
-                          account = value;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: textReports(
-                      'المكان',
-                      'ش طرابلس',
-                      place,
-                      placeController,
-                      (value) {
-                        setState(() {
-                          place = value;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8.0),
-                  Expanded(
-                    child: textReports(
-                      'البرج',
-                      'س',
-                      sector,
-                      sectorController,
-                      (value) {
-                        setState(() {
-                          sector = value;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 15),
-
-              ConstrainedBox(
-                constraints: const BoxConstraints(
-                  minHeight: 100, // Set the default minimum height to 100
-                ),
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: Stack(
-                    children: [
-                      const Align(
-                        alignment: Alignment.topCenter,
-                        child: Text(
-                          'المشاكل',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: textReports(
+                            'الهاتف',
+                            '091XXXXXXX',
+                            name,
+                            phoneController,
+                            (value) {
+                              setState(() {
+                                phone = value;
+                              });
+                            },
                           ),
                         ),
+                        const SizedBox(width: 8.0),
+                        Expanded(
+                          child: textReports(
+                            'الحساب',
+                            'HTIX00000',
+                            account,
+                            accController,
+                            (value) {
+                              setState(() {
+                                account = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: textReports(
+                            'المكان',
+                            'ش طرابلس',
+                            place,
+                            placeController,
+                            (value) {
+                              setState(() {
+                                place = value;
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8.0),
+                        Expanded(
+                          child: textReports(
+                            'البرج',
+                            'س',
+                            sector,
+                            sectorController,
+                            (value) {
+                              setState(() {
+                                sector = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 15),
+
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minHeight: 100, // Set the default minimum height to 100
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 15),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: textTrueProblem.length,
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              dense: true,
-                              leading: Container(
-                                width: 24,
-                                height: 24,
-                                alignment: Alignment.center,
-                                child: const Icon(
-                                  Icons.fiber_manual_record,
-                                  size: 12,
-                                  color: Colors.black,
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Stack(
+                          children: [
+                            const Align(
+                              alignment: Alignment.topCenter,
+                              child: Text(
+                                'المشاكل',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              title: Text(
-                                textTrueProblem[index],
-                                style: const TextStyle(fontSize: 16),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 15),
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: textTrueProblem.length,
+                                itemBuilder: (context, index) {
+                                  return ListTile(
+                                    dense: true,
+                                    leading: Container(
+                                      width: 24,
+                                      height: 24,
+                                      alignment: Alignment.center,
+                                      child: const Icon(
+                                        Icons.fiber_manual_record,
+                                        size: 12,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    title: Text(
+                                      textTrueProblem[index],
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
-                      ),
-                      Positioned(
-                        right: 10,
-                        bottom: 10,
-                        child: Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: IconButton(
-                            onPressed: () {
-                              _showBottomSheetProblem(context);
-                            },
-                            icon: const Icon(Icons.edit, color: Colors.black),
-                            iconSize: 24,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              // Checkboxes - Group Solutions
-              const SizedBox(height: 15.0),
-
-              ConstrainedBox(
-                constraints: const BoxConstraints(
-                  minHeight: 100, // Set the default minimum height to 100
-                ),
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: Stack(
-                    children: [
-                      const Align(
-                        alignment: Alignment.topCenter,
-                        child: Text(
-                          'الحلول',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 15),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: textTrueSolution.length,
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              dense: true,
-                              leading: Container(
-                                width: 24,
-                                height: 24,
-                                alignment: Alignment.center,
-                                child: const Icon(
-                                  Icons.fiber_manual_record,
-                                  size: 12,
-                                  color: Colors.black,
+                            ),
+                            Positioned(
+                              right: 10,
+                              bottom: 10,
+                              child: Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: IconButton(
+                                  onPressed: () {
+                                    _showBottomSheetProblem(context);
+                                  },
+                                  icon: const Icon(Icons.edit,
+                                      color: Colors.black),
+                                  iconSize: 24,
                                 ),
                               ),
-                              title: Text(
-                                textTrueSolution[index],
-                                style: const TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Checkboxes - Group Solutions
+                    const SizedBox(height: 15.0),
+
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minHeight: 100, // Set the default minimum height to 100
+                      ),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Stack(
+                          children: [
+                            const Align(
+                              alignment: Alignment.topCenter,
+                              child: Text(
+                                'الحلول',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            );
-                          },
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 15),
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: textTrueSolution.length,
+                                itemBuilder: (context, index) {
+                                  return ListTile(
+                                    dense: true,
+                                    leading: Container(
+                                      width: 24,
+                                      height: 24,
+                                      alignment: Alignment.center,
+                                      child: const Icon(
+                                        Icons.fiber_manual_record,
+                                        size: 12,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    title: Text(
+                                      textTrueSolution[index],
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            Positioned(
+                              right: 10,
+                              bottom: 10,
+                              child: Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: IconButton(
+                                  onPressed: () {
+                                    _showBottomSheetSolution(context);
+                                  },
+                                  icon: const Icon(Icons.edit,
+                                      color: Colors.black),
+                                  iconSize: 24,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      Positioned(
-                        right: 10,
-                        bottom: 10,
-                        child: Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: IconButton(
-                            onPressed: () {
-                              _showBottomSheetSolution(context);
+                    ),
+
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 120,
+                          height: 55,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              locationData =
+                                  await locationService.getUserLocation();
+                              locationController.text =
+                                  '${locationData!.latitude}, ${locationData!.longitude}';
+                              setState(() {
+                                longitude = locationData!.longitude;
+                                latitude = locationData!.latitude;
+                              });
                             },
-                            icon: const Icon(Icons.edit, color: Colors.black),
-                            iconSize: 24,
+                            style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(60, 80),
+                                backgroundColor: Colors.grey[300]),
+                            child: const Center(
+                              // Center the text
+                              child: Text(
+                                "جلب احداثيات الموقع",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w300),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(
-                height: 15,
-              ),
-              Row(
-                children: [
-                  SizedBox(
-                    width: 120,
-                    height: 55,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        locationData = await locationService.getUserLocation();
-                        locationController.text =
-                            '${locationData!.latitude}, ${locationData!.longitude}';
-                        setState(() {
-                          longitude = locationData!.longitude;
-                          latitude = locationData!.latitude;
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(60, 80),
-                          backgroundColor: Colors.grey[300]),
-                      child: const Center(
-                        // Center the text
-                        child: Text(
-                          "جلب احداثيات الموقع",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w300),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8.0),
-                  Expanded(
-                    child: Directionality(
-                      textDirection: TextDirection.rtl,
-                      child: TextField(
-                        controller: locationController,
-                        readOnly: true,
-                        decoration: const InputDecoration(
-                          labelText: 'احداثيات الموقع',
-                          hintStyle:
-                              TextStyle(fontSize: 14, color: Colors.grey),
-                          hintText: 'xx.xxxx, xx.xxxx',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                        const SizedBox(width: 8.0),
+                        Expanded(
+                          child: Directionality(
+                            textDirection: TextDirection.rtl,
+                            child: TextField(
+                              controller: locationController,
+                              readOnly: true,
+                              decoration: const InputDecoration(
+                                labelText: 'احداثيات الموقع',
+                                hintStyle:
+                                    TextStyle(fontSize: 14, color: Colors.grey),
+                                hintText: 'xx.xxxx, xx.xxxx',
+                                border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5)),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
 
-              //*Location Map
-              const SizedBox(height: 10),
-              if (latitude != 0 && longitude != 0 && longitude != null)
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.grey, width: 2),
-                  ),
-                  width: 400,
-                  height: 200,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: MapBox(
-                        latitude: latitude!,
-                        longitude: longitude!,
-                        zoomLvl: 15),
-                  ),
+                    //*Location Map
+                    const SizedBox(height: 10),
+                    if (latitude != 0 && longitude != 0 && longitude != null)
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.grey, width: 2),
+                        ),
+                        width: 400,
+                        height: 200,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: MapBox(
+                              latitude: latitude!,
+                              longitude: longitude!,
+                              zoomLvl: 15),
+                        ),
+                      ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+
+                    const SizedBox(height: 16.0),
+                    if (widget.ticket != null)
+                      CommentSection(
+                          id: widget.ticket!.id,
+                          user: widget.ticket!,
+                          comments: widget.ticket!.comments),
+                  ],
                 ),
-              const SizedBox(
-                height: 15,
               ),
-
-              const SizedBox(height: 16.0),
-              if (widget.ticket != null)
-                CommentSection(
-                    id: widget.ticket!.id,
-                    user: widget.ticket!,
-                    comments: widget.ticket!.comments),
-            ],
-          ),
-        ),
+            );
+          }
+        },
       ),
     );
   }
 
-  void _submitReport() {
+  void _submitReport() async {
     List<int> selectedSolutionIds = solutionCheckboxGroup
         .asMap()
         .entries
@@ -483,36 +532,43 @@ class _AddReportScreenState extends State<AddTicket> {
         .where((entry) => entry.value)
         .map((entry) => problemsCheckbox[entry.key].id)
         .toList();
-    //go to update or add functions
-    if (widget.ticket == null) {
-      ApiService().addReport(
-          name,
-          account,
-          phone,
-          place,
-          sector,
-          selectedProblemIds,
-          selectedSolutionIds,
-          locationData!.longitude!,
-          locationData!.latitude!);
-    } else {
-      ApiService().updateReport(
-          //!bug when updating GPS
-          name: nameController.text,
-          acc: accController.text,
-          phone: phoneController.text,
-          place: placeController.text,
-          sector: sectorController.text,
-          id: widget.ticket!.id,
-          problems: selectedProblemIds,
-          solution: selectedSolutionIds,
-          longitude: longitude,
-          latitude: latitude);
-    }
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult != ConnectivityResult.none) {
+      if (widget.ticket == null) {
+        await ApiService().addReport(
+            name,
+            account,
+            phone,
+            place,
+            sector,
+            selectedProblemIds,
+            selectedSolutionIds,
+            locationData!.longitude!,
+            locationData!.latitude!);
+      } else {
+        await ApiService().updateReport(
+            //!bug when updating GPS
+            name: nameController.text,
+            acc: accController.text,
+            phone: phoneController.text,
+            place: placeController.text,
+            sector: sectorController.text,
+            id: widget.ticket!.id,
+            problems: selectedProblemIds,
+            solution: selectedSolutionIds,
+            longitude: longitude,
+            latitude: latitude);
+      }
 
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-      return SurveyPage(ticket: widget.ticket);
-    }));
+      if (context.mounted) {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) {
+          return SurveyPage(ticket: widget.ticket);
+        }));
+      }
+    } else {
+      Fluttertoast.showToast(msg: "لا يوجد اتصال بالانترنت");
+    }
   }
 
   void _updateSelectedProblems() {

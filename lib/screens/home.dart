@@ -54,10 +54,15 @@ class _HomeScreenState extends State<HomeScreen> {
       try {
         if (context.mounted) {
           final users = await ApiService().getReports(context);
-          setState(() {
-            ticketList = users;
-            originalList = ticketList;
-          });
+          if (users != null) {
+            setState(() {
+              ticketList = users;
+              originalList = ticketList;
+            });
+          } else {
+            _handleError();
+            throw Exception('ApiService returned null or an error response.');
+          }
         }
       } catch (e) {
         debugPrint('Error while refreshing data: $e');
