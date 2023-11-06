@@ -7,6 +7,7 @@ import 'package:jwt_auth/data/location_config.dart';
 import 'package:jwt_auth/data/problem_config.dart';
 import 'package:jwt_auth/data/ticket_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
+import 'package:jwt_auth/screens/home.dart';
 import 'package:jwt_auth/screens/survey_page.dart';
 import 'package:jwt_auth/services/api_service.dart';
 import 'package:jwt_auth/services/location_services.dart';
@@ -620,10 +621,19 @@ class _AddReportScreenState extends State<AddTicket> {
       }
 
       if (context.mounted) {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) {
-          return SurveyPage(ticket: widget.ticket);
-        }));
+        if (widget.ticket != null) {
+          //IT IS UPDATE
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) {
+            return SurveyPage(ticket: widget.ticket);
+          }));
+        } else {
+          //IT IS ADD
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) {
+            return const HomeScreen();
+          }));
+        }
       }
     } else {
       Fluttertoast.showToast(msg: "لا يوجد اتصال بالانترنت");
