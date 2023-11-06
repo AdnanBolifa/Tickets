@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -37,6 +39,8 @@ class _AddReportScreenState extends State<AddTicket> {
   String sector = '';
   double? longitude;
   double? latitude;
+  bool hasError = false;
+  double zoomLvl = 14;
 
   List<Problem> problemsCheckbox = [];
   List<Solution> solutionsCheckbox = [];
@@ -58,13 +62,31 @@ class _AddReportScreenState extends State<AddTicket> {
     if (latitude != 0 && longitude != 0 && longitude != null) {
       locationController.text = '$latitude, $longitude';
     }
+    _fetchData();
   }
 
   @override
   void initState() {
     super.initState();
     init();
+  }
 
+  void _handleError() {
+    setState(() {
+      hasError = true;
+    });
+  }
+
+  void _retryFetchingData() {
+    // Clear the error flag and attempt to fetch data again.
+    setState(() {
+      hasError = false;
+      zoomLvl = 13;
+    });
+    init();
+  }
+
+  void _fetchData() {
     // Check for internet connectivity
     checkInternetConnectivity().then((hasInternet) {
       if (hasInternet) {
@@ -87,6 +109,7 @@ class _AddReportScreenState extends State<AddTicket> {
             }
           });
         }).catchError((error) {
+          _handleError();
           print("Error fetching problems: $error");
         });
 
@@ -109,6 +132,7 @@ class _AddReportScreenState extends State<AddTicket> {
             }
           });
         }).catchError((error) {
+          _handleError();
           print("Error fetching solutions: $error");
         });
       } else {
@@ -168,357 +192,391 @@ class _AddReportScreenState extends State<AddTicket> {
         ),
         centerTitle: true,
       ),
-      body: FutureBuilder<bool>(
-        future: checkInternetConnectivity(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // Display a loading indicator while checking for connectivity.
-            return const CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            // Handle any errors that occur during connectivity check.
-            return Text("Error: ${snapshot.error}");
-          } else if (snapshot.data == false) {
-            // No internet connection, display an error message.
-            return const Center(
+      body: hasError
+          ? Center(
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    Text(
-                        "No internet connection. Please check your network settings."),
+                    const Text(
+                      "حدث عطل ما!",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    ElevatedButton(
+                        onPressed: () {
+                          _retryFetchingData();
+                        },
+                        child: const Text('حاول مجددا'))
                   ],
                 ),
               ),
-            );
-          } else {
-            // Internet is available, display your actual widget.
-            return SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    // Text Fields
-                    textReports(
-                      'الاسم',
-                      'خالد جمعة',
-                      name,
-                      nameController,
-                      (value) {
-                        setState(() {
-                          name = value;
-                        });
-                      },
+            )
+          : FutureBuilder<bool>(
+              future: checkInternetConnectivity(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Text("Error: ${snapshot.error}");
+                } else if (snapshot.data == false) {
+                  // No internet connection, display an error message.
+                  return Center(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const Text(
+                            "لا يوجد اتصال بالانترنت",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          ElevatedButton(
+                              onPressed: () {
+                                _retryFetchingData();
+                              },
+                              child: const Text('حاول مجددا'))
+                        ],
+                      ),
                     ),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: textReports(
-                            'الهاتف',
-                            '091XXXXXXX',
+                  );
+                } else {
+                  // Internet is available
+                  return SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          // Text Fields
+                          textReports(
+                            'الاسم',
+                            'خالد جمعة',
                             name,
-                            phoneController,
+                            nameController,
                             (value) {
                               setState(() {
-                                phone = value;
+                                name = value;
                               });
                             },
                           ),
-                        ),
-                        const SizedBox(width: 8.0),
-                        Expanded(
-                          child: textReports(
-                            'الحساب',
-                            'HTIX00000',
-                            account,
-                            accController,
-                            (value) {
-                              setState(() {
-                                account = value;
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
 
-                    Row(
-                      children: [
-                        Expanded(
-                          child: textReports(
-                            'المكان',
-                            'ش طرابلس',
-                            place,
-                            placeController,
-                            (value) {
-                              setState(() {
-                                place = value;
-                              });
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 8.0),
-                        Expanded(
-                          child: textReports(
-                            'البرج',
-                            'س',
-                            sector,
-                            sectorController,
-                            (value) {
-                              setState(() {
-                                sector = value;
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        minHeight: 100, // Set the default minimum height to 100
-                      ),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Stack(
-                          children: [
-                            const Align(
-                              alignment: Alignment.topCenter,
-                              child: Text(
-                                'المشاكل',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: textReports(
+                                  'الهاتف',
+                                  '091XXXXXXX',
+                                  name,
+                                  phoneController,
+                                  (value) {
+                                    setState(() {
+                                      phone = value;
+                                    });
+                                  },
                                 ),
                               ),
+                              const SizedBox(width: 8.0),
+                              Expanded(
+                                child: textReports(
+                                  'الحساب',
+                                  'HTIX00000',
+                                  account,
+                                  accController,
+                                  (value) {
+                                    setState(() {
+                                      account = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                child: textReports(
+                                  'المكان',
+                                  'ش طرابلس',
+                                  place,
+                                  placeController,
+                                  (value) {
+                                    setState(() {
+                                      place = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 8.0),
+                              Expanded(
+                                child: textReports(
+                                  'البرج',
+                                  'س',
+                                  sector,
+                                  sectorController,
+                                  (value) {
+                                    setState(() {
+                                      sector = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 15),
+
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              minHeight:
+                                  100, // Set the default minimum height to 100
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 15),
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: textTrueProblem.length,
-                                itemBuilder: (context, index) {
-                                  return ListTile(
-                                    dense: true,
-                                    leading: Container(
-                                      width: 24,
-                                      height: 24,
-                                      alignment: Alignment.center,
-                                      child: const Icon(
-                                        Icons.fiber_manual_record,
-                                        size: 12,
-                                        color: Colors.black,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Stack(
+                                children: [
+                                  const Align(
+                                    alignment: Alignment.topCenter,
+                                    child: Text(
+                                      'المشاكل',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    title: Text(
-                                      textTrueProblem[index],
-                                      style: const TextStyle(fontSize: 16),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 15),
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: textTrueProblem.length,
+                                      itemBuilder: (context, index) {
+                                        return ListTile(
+                                          dense: true,
+                                          leading: Container(
+                                            width: 24,
+                                            height: 24,
+                                            alignment: Alignment.center,
+                                            child: const Icon(
+                                              Icons.fiber_manual_record,
+                                              size: 12,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          title: Text(
+                                            textTrueProblem[index],
+                                            style:
+                                                const TextStyle(fontSize: 16),
+                                          ),
+                                        );
+                                      },
                                     ),
-                                  );
-                                },
-                              ),
-                            ),
-                            Positioned(
-                              right: 10,
-                              bottom: 10,
-                              child: Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: IconButton(
-                                  onPressed: () {
-                                    _showBottomSheetProblem(context);
-                                  },
-                                  icon: const Icon(Icons.edit,
-                                      color: Colors.black),
-                                  iconSize: 24,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // Checkboxes - Group Solutions
-                    const SizedBox(height: 15.0),
-
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        minHeight: 100, // Set the default minimum height to 100
-                      ),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Stack(
-                          children: [
-                            const Align(
-                              alignment: Alignment.topCenter,
-                              child: Text(
-                                'الحلول',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 15),
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: textTrueSolution.length,
-                                itemBuilder: (context, index) {
-                                  return ListTile(
-                                    dense: true,
-                                    leading: Container(
-                                      width: 24,
-                                      height: 24,
-                                      alignment: Alignment.center,
-                                      child: const Icon(
-                                        Icons.fiber_manual_record,
-                                        size: 12,
-                                        color: Colors.black,
+                                  ),
+                                  Positioned(
+                                    right: 10,
+                                    bottom: 10,
+                                    child: Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                      child: IconButton(
+                                        onPressed: () {
+                                          _showBottomSheetProblem(context);
+                                        },
+                                        icon: const Icon(Icons.edit,
+                                            color: Colors.black),
+                                        iconSize: 24,
                                       ),
                                     ),
-                                    title: Text(
-                                      textTrueSolution[index],
-                                      style: const TextStyle(fontSize: 16),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          // Checkboxes - Group Solutions
+                          const SizedBox(height: 15.0),
+
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              minHeight:
+                                  100, // Set the default minimum height to 100
+                            ),
+                            child: Container(
+                              width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Stack(
+                                children: [
+                                  const Align(
+                                    alignment: Alignment.topCenter,
+                                    child: Text(
+                                      'الحلول',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  );
-                                },
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 15),
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: textTrueSolution.length,
+                                      itemBuilder: (context, index) {
+                                        return ListTile(
+                                          dense: true,
+                                          leading: Container(
+                                            width: 24,
+                                            height: 24,
+                                            alignment: Alignment.center,
+                                            child: const Icon(
+                                              Icons.fiber_manual_record,
+                                              size: 12,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          title: Text(
+                                            textTrueSolution[index],
+                                            style:
+                                                const TextStyle(fontSize: 16),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  Positioned(
+                                    right: 10,
+                                    bottom: 10,
+                                    child: Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                      child: IconButton(
+                                        onPressed: () {
+                                          _showBottomSheetSolution(context);
+                                        },
+                                        icon: const Icon(Icons.edit,
+                                            color: Colors.black),
+                                        iconSize: 24,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            Positioned(
-                              right: 10,
-                              bottom: 10,
-                              child: Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: IconButton(
-                                  onPressed: () {
-                                    _showBottomSheetSolution(context);
+                          ),
+
+                          const SizedBox(height: 15),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 120,
+                                height: 55,
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    locationData =
+                                        await locationService.getUserLocation();
+                                    locationController.text =
+                                        '${locationData!.latitude}, ${locationData!.longitude}';
+                                    setState(() {
+                                      longitude = locationData!.longitude;
+                                      latitude = locationData!.latitude;
+                                    });
                                   },
-                                  icon: const Icon(Icons.edit,
-                                      color: Colors.black),
-                                  iconSize: 24,
+                                  style: ElevatedButton.styleFrom(
+                                      minimumSize: const Size(60, 80),
+                                      backgroundColor: Colors.grey[300]),
+                                  child: const Center(
+                                    // Center the text
+                                    child: Text(
+                                      "جلب احداثيات الموقع",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w300),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 120,
-                          height: 55,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              locationData =
-                                  await locationService.getUserLocation();
-                              locationController.text =
-                                  '${locationData!.latitude}, ${locationData!.longitude}';
-                              setState(() {
-                                longitude = locationData!.longitude;
-                                latitude = locationData!.latitude;
-                              });
-                            },
-                            style: ElevatedButton.styleFrom(
-                                minimumSize: const Size(60, 80),
-                                backgroundColor: Colors.grey[300]),
-                            child: const Center(
-                              // Center the text
-                              child: Text(
-                                "جلب احداثيات الموقع",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w300),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8.0),
-                        Expanded(
-                          child: Directionality(
-                            textDirection: TextDirection.rtl,
-                            child: TextField(
-                              controller: locationController,
-                              readOnly: true,
-                              decoration: const InputDecoration(
-                                labelText: 'احداثيات الموقع',
-                                hintStyle:
-                                    TextStyle(fontSize: 14, color: Colors.grey),
-                                hintText: 'xx.xxxx, xx.xxxx',
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5)),
+                              const SizedBox(width: 8.0),
+                              Expanded(
+                                child: Directionality(
+                                  textDirection: TextDirection.rtl,
+                                  child: TextField(
+                                    controller: locationController,
+                                    readOnly: true,
+                                    decoration: const InputDecoration(
+                                      labelText: 'احداثيات الموقع',
+                                      hintStyle: TextStyle(
+                                          fontSize: 14, color: Colors.grey),
+                                      hintText: 'xx.xxxx, xx.xxxx',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(5)),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
 
-                    //*Location Map
-                    const SizedBox(height: 10),
-                    if (latitude != 0 && longitude != 0 && longitude != null)
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.grey, width: 2),
-                        ),
-                        width: 400,
-                        height: 200,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: MapBox(
-                              latitude: latitude!,
-                              longitude: longitude!,
-                              zoomLvl: 15),
-                        ),
+                          //*Location Map
+                          const SizedBox(height: 10),
+                          if (latitude != 0 &&
+                              longitude != 0 &&
+                              longitude != null)
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                border:
+                                    Border.all(color: Colors.grey, width: 2),
+                              ),
+                              width: 400,
+                              height: 200,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: MapBox(
+                                    latitude: latitude!,
+                                    longitude: longitude!,
+                                    zoomLvl: zoomLvl),
+                              ),
+                            ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+
+                          const SizedBox(height: 16.0),
+                          if (widget.ticket != null)
+                            CommentSection(
+                                id: widget.ticket!.id,
+                                user: widget.ticket!,
+                                comments: widget.ticket!.comments),
+                        ],
                       ),
-                    const SizedBox(
-                      height: 15,
                     ),
-
-                    const SizedBox(height: 16.0),
-                    if (widget.ticket != null)
-                      CommentSection(
-                          id: widget.ticket!.id,
-                          user: widget.ticket!,
-                          comments: widget.ticket!.comments),
-                  ],
-                ),
-              ),
-            );
-          }
-        },
-      ),
+                  );
+                }
+              },
+            ),
     );
   }
 
   void _submitReport() async {
+    if (name.isEmpty ||
+        account.isEmpty ||
+        phone.isEmpty ||
+        place.isEmpty ||
+        sector.isEmpty) {
+      Fluttertoast.showToast(msg: "الرجاء ادخال ملء الحقول");
+      return;
+    }
     List<int> selectedSolutionIds = solutionCheckboxGroup
         .asMap()
         .entries
