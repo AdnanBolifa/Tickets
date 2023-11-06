@@ -39,7 +39,8 @@ class _HomeScreenState extends State<HomeScreen> {
           final queryLower = query.toLowerCase();
           return ticket.userName.toLowerCase().contains(queryLower) ||
               ticket.mobile.toLowerCase().contains(queryLower) ||
-              ticket.acc!.toLowerCase().contains(queryLower);
+              ticket.acc!.toLowerCase().contains(queryLower) ||
+              ticket.place!.toLowerCase().contains(queryLower);
         }).toList();
       }
     });
