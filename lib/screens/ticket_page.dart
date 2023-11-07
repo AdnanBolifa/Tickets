@@ -576,7 +576,7 @@ class _AddReportScreenState extends State<AddTicket> {
         place.isEmpty ||
         sector.isEmpty ||
         locationController.text.isEmpty) {
-      Fluttertoast.showToast(msg: "الرجاء ادخال ملء الحقول");
+      Fluttertoast.showToast(msg: "الرجاء ملء الحقول");
       return;
     }
     List<int> selectedSolutionIds = solutionCheckboxGroup

@@ -101,6 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _fetchReports();
   }
 
+  //todo fix the bug when there's no ticket assigned
   @override
   Widget build(BuildContext context) {
     return Scaffold(
