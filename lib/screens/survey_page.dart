@@ -13,7 +13,7 @@ class SurveyPage extends StatefulWidget {
   const SurveyPage({Key? key, this.ticket}) : super(key: key);
 
   @override
-  _SurveyPageState createState() => _SurveyPageState();
+  State<SurveyPage> createState() => _SurveyPageState();
 }
 
 class _SurveyPageState extends State<SurveyPage> {

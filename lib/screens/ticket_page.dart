@@ -1,12 +1,13 @@
-// ignore_for_file: avoid_print
-
 import 'package:connectivity/connectivity.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jwt_auth/data/location_config.dart';
 import 'package:jwt_auth/data/problem_config.dart';
+import 'package:jwt_auth/data/sectors_config.dart';
 import 'package:jwt_auth/data/ticket_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
+import 'package:jwt_auth/data/towers_config.dart';
 import 'package:jwt_auth/screens/home.dart';
 import 'package:jwt_auth/screens/survey_page.dart';
 import 'package:jwt_auth/services/api_service.dart';
@@ -21,10 +22,10 @@ class AddTicket extends StatefulWidget {
   const AddTicket({Key? key, this.comments, this.ticket}) : super(key: key);
 
   @override
-  _AddReportScreenState createState() => _AddReportScreenState();
+  State<AddTicket> createState() => _AddTicketState();
 }
 
-class _AddReportScreenState extends State<AddTicket> {
+class _AddTicketState extends State<AddTicket> {
   //Controllers
   TextEditingController nameController = TextEditingController();
   TextEditingController accController = TextEditingController();
@@ -42,11 +43,14 @@ class _AddReportScreenState extends State<AddTicket> {
   double? latitude;
   bool hasError = false;
   double zoomLvl = 14;
+  Tower? selectedTower;
+  Sector? selectedSector;
 
   List<Problem> problemsCheckbox = [];
   List<Solution> solutionsCheckbox = [];
   List<String> textTrueProblem = [];
   List<String> textTrueSolution = [];
+  List<Tower> towers = [];
   late List<bool> problemCheckboxGroup;
   late List<bool> solutionCheckboxGroup;
 
@@ -87,10 +91,22 @@ class _AddReportScreenState extends State<AddTicket> {
     init();
   }
 
-  void _fetchData() {
+  void _fetchData() async {
     // Check for internet connectivity
     checkInternetConnectivity().then((hasInternet) {
       if (hasInternet) {
+        //fetch towers:
+        ApiService().fetchTowers().then((t) {
+          setState(() {
+            towers = t;
+          });
+        }).catchError((error) {
+          _handleError();
+          if (kDebugMode) {
+            print("Error fetching problems: $error");
+          }
+        });
+
         // Fetch problems and handle errors
         ApiService().fetchProblems().then((problems) {
           setState(() {
@@ -111,7 +127,9 @@ class _AddReportScreenState extends State<AddTicket> {
           });
         }).catchError((error) {
           _handleError();
-          print("Error fetching problems: $error");
+          if (kDebugMode) {
+            print("Error fetching problems: $error");
+          }
         });
 
         // Fetch solutions and handle errors
@@ -134,10 +152,14 @@ class _AddReportScreenState extends State<AddTicket> {
           });
         }).catchError((error) {
           _handleError();
-          print("Error fetching solutions: $error");
+          if (kDebugMode) {
+            print("Error fetching solutions: $error");
+          }
         });
       } else {
-        print("No internet connection.");
+        if (kDebugMode) {
+          print("No internet connection.");
+        }
       }
     });
   }
@@ -302,24 +324,72 @@ class _AddReportScreenState extends State<AddTicket> {
                                   },
                                 ),
                               ),
-                              const SizedBox(width: 8.0),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              // Dropdown for Towers
                               Expanded(
-                                child: textReports(
-                                  'البرج',
-                                  'س',
-                                  sector,
-                                  sectorController,
-                                  (value) {
-                                    setState(() {
-                                      sector = value;
-                                    });
-                                  },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.grey),
+                                  ),
+                                  child: DropdownButton<Tower>(
+                                    value: selectedTower,
+                                    items: towers.map((Tower tower) {
+                                      return DropdownMenuItem<Tower>(
+                                        value: tower,
+                                        child: Text(tower.name),
+                                      );
+                                    }).toList(),
+                                    onChanged: (Tower? newValue) {
+                                      setState(() {
+                                        selectedTower = newValue;
+                                        selectedSector = null;
+                                      });
+                                    },
+                                    hint: const Text(
+                                      'اختر برج',
+                                      textDirection: TextDirection.rtl,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              // Dropdown for Sectors
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.only(left: 5),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8), // Add padding here
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: DropdownButton<Sector>(
+                                    value: selectedSector,
+                                    items: selectedTower?.sectors
+                                            ?.map((Sector sector) {
+                                          return DropdownMenuItem<Sector>(
+                                            value: sector,
+                                            child: Text(sector.name),
+                                          );
+                                        }).toList() ??
+                                        [],
+                                    onChanged: (Sector? newValue) {
+                                      setState(() {
+                                        selectedSector = newValue;
+                                      });
+                                    },
+                                    hint: const Text('اختر قطاع'),
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 15),
 
+                          const SizedBox(height: 10),
                           ConstrainedBox(
                             constraints: const BoxConstraints(
                               minHeight:
@@ -600,14 +670,13 @@ class _AddReportScreenState extends State<AddTicket> {
             account,
             phone,
             place,
-            sector,
+            (selectedTower!.name + selectedSector!.name),
             selectedProblemIds,
             selectedSolutionIds,
             locationData!.longitude!,
             locationData!.latitude!);
       } else {
         await ApiService().updateReport(
-            //!bug when updating GPS
             name: nameController.text,
             acc: accController.text,
             phone: phoneController.text,

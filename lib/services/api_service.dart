@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
@@ -7,8 +8,10 @@ import 'package:jwt_auth/data/comment_config.dart';
 import 'package:jwt_auth/data/location_config.dart';
 import 'package:jwt_auth/data/multi_survey_config.dart';
 import 'package:jwt_auth/data/problem_config.dart';
+import 'package:jwt_auth/data/sectors_config.dart';
 import 'package:jwt_auth/data/ticket_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
+import 'package:jwt_auth/data/towers_config.dart';
 import 'package:jwt_auth/screens/login.dart';
 import 'package:jwt_auth/services/auth_service.dart';
 
@@ -137,8 +140,16 @@ class ApiService {
       "ticket": id,
       "answers_list": answersList,
     };
-    print(jsonEncode(body));
+    if (kDebugMode) {
+      print(jsonEncode(body));
+    }
     await _performPostRequest(APIConfig.submitSurveyUrl, body);
+  }
+
+  Future<List<Tower>> fetchTowers() async {
+    final responseTower = await _performGetRequest(APIConfig.towerUrl);
+    final responseSec = await _performGetRequest(APIConfig.sectorsUrl);
+    return _parseTowerResponse(responseTower, responseSec);
   }
 
   //helper functions
@@ -265,6 +276,33 @@ class ApiService {
       return solutions;
     } else {
       throw Exception('Failed to fetch solutions');
+    }
+  }
+
+  List<Tower> _parseTowerResponse(
+      http.Response responseTower, http.Response responseSec) {
+    if (responseSec.statusCode == 200) {
+      final secResponseMap = jsonDecode(utf8.decode(responseSec.bodyBytes));
+      final List<dynamic> secResults = secResponseMap['results'];
+      final sectors = secResults.map((item) => Sector.fromJson(item)).toList();
+
+      if (responseTower.statusCode == 200) {
+        final towerResponseMap =
+            jsonDecode(utf8.decode(responseTower.bodyBytes));
+        final List<dynamic> towerResults = towerResponseMap['results'];
+        final towers = towerResults.map((item) {
+          final tower = Tower.fromJson(item);
+          tower.sectors =
+              sectors.where((sec) => sec.tower == tower.id).toList();
+          return tower;
+        }).toList();
+
+        return towers;
+      } else {
+        throw Exception('Failed to fetch towers');
+      }
+    } else {
+      throw Exception('Failed to fetch sectors');
     }
   }
 
