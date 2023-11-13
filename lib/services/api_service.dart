@@ -73,6 +73,7 @@ class ApiService {
       throw 'Id not provided';
     } else if (comment == null) {
       //update data
+      print('API: ${APIConfig.updateUrl}$id/edit');
       await _performPutRequest('${APIConfig.updateUrl}$id/edit', requestBody);
     } else {
       //add new comment
@@ -126,7 +127,7 @@ class ApiService {
       "long": location.longitude,
       "lat": location.latitude,
     };
-    await _performPostRequest('${APIConfig.timerUrl}$ticket/start', body);
+    await _performPostRequest('${APIConfig.timerUrl}/$ticket/start', body);
   }
 
   Future<List<MultiSurvey>> fetchSurvey() async {
@@ -150,6 +151,40 @@ class ApiService {
     final responseTower = await _performGetRequest(APIConfig.towerUrl);
     final responseSec = await _performGetRequest(APIConfig.sectorsUrl);
     return _parseTowerResponse(responseTower, responseSec);
+  }
+
+  Future<String?> checkAndUpdateVersion(String frontendVersion) async {
+    try {
+      final response = await http.post(
+        Uri.parse(
+            '${APIConfig.checkUpdates}?frontend_version=$frontendVersion'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+
+        if (data['status']) {
+          // There is a new version, and the APK URL is available
+          String version = data['version'];
+          String apkUrl = data['url'];
+          debugPrint('New version available: $version');
+          debugPrint('APK URL: $apkUrl');
+          return apkUrl; // Return the APK URL
+        } else {
+          debugPrint('No new version available');
+          return null; // No new version available, return null
+        }
+      } else {
+        debugPrint('Error: ${response.statusCode}');
+        return null; // Return null in case of an error
+      }
+    } catch (e) {
+      // Handle any exceptions
+      debugPrint('Error: $e');
+      return null; // Return null in case of an exception
+    }
   }
 
   //helper functions

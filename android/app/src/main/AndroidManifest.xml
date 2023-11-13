@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <!-- Provide required visibility configuration for API level 30 and above -->
     <queries>
     <!-- If your app checks for call support -->
@@ -13,7 +14,6 @@
     </intent>
     </queries>
     <application
-
         android:label="Tickets"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
@@ -43,6 +43,5 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-            
     </application>
 </manifest>

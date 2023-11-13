@@ -324,6 +324,23 @@ class _AddTicketState extends State<AddTicket> {
                                   },
                                 ),
                               ),
+                              if (widget.ticket != null)
+                                const SizedBox(width: 8),
+                              if (widget.ticket != null)
+                                Expanded(
+                                  child: textReports(
+                                    'البرج',
+                                    'ZXX-SECXX',
+                                    sector,
+                                    sectorController,
+                                    (value) {
+                                      setState(() {
+                                        sector = value;
+                                      });
+                                    },
+                                    readOnly: true,
+                                  ),
+                                ),
                             ],
                           ),
                           Row(
@@ -356,24 +373,24 @@ class _AddTicketState extends State<AddTicket> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 10),
+                              const SizedBox(width: 8),
                               // Dropdown for Sectors
                               Expanded(
                                 child: Container(
-                                  margin: const EdgeInsets.only(left: 5),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8), // Add padding here
                                   decoration: BoxDecoration(
                                     border: Border.all(color: Colors.grey),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: DropdownButton<Sector>(
+                                    isExpanded: true,
                                     value: selectedSector,
                                     items: selectedTower?.sectors
                                             ?.map((Sector sector) {
                                           return DropdownMenuItem<Sector>(
                                             value: sector,
-                                            child: Text(sector.name),
+                                            child: Text(
+                                              sector.name,
+                                            ),
                                           );
                                         }).toList() ??
                                         [],
@@ -392,8 +409,7 @@ class _AddTicketState extends State<AddTicket> {
                           const SizedBox(height: 10),
                           ConstrainedBox(
                             constraints: const BoxConstraints(
-                              minHeight:
-                                  100, // Set the default minimum height to 100
+                              minHeight: 100,
                             ),
                             child: Container(
                               width: MediaQuery.of(context).size.width,
@@ -644,7 +660,8 @@ class _AddTicketState extends State<AddTicket> {
         account.isEmpty ||
         phone.isEmpty ||
         place.isEmpty ||
-        sector.isEmpty ||
+        selectedSector == null ||
+        selectedTower == null ||
         locationController.text.isEmpty) {
       Fluttertoast.showToast(msg: "الرجاء ملء الحقول");
       return;

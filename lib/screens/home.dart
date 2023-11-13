@@ -1,5 +1,6 @@
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jwt_auth/data/ticket_config.dart';
 import 'package:jwt_auth/screens/ticket_page.dart';
@@ -7,6 +8,7 @@ import 'package:jwt_auth/screens/login.dart';
 import 'package:jwt_auth/services/api_service.dart';
 import 'package:jwt_auth/services/auth_service.dart';
 import 'package:jwt_auth/theme/colors.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../widgets/ticket_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -24,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool noInternet = false;
   bool hasError = false;
   bool noTickets = false;
+  //double? _progress;
 
   @override
   void initState() {
@@ -111,6 +114,30 @@ class _HomeScreenState extends State<HomeScreen> {
     _fetchReports();
   }
 
+  void getVersionInfo() async {
+    try {
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      String? url =
+          await ApiService().checkAndUpdateVersion(packageInfo.version);
+      if (url != null) {
+        FileDownloader.downloadFile(
+            url: url,
+            onProgress: (fileName, progress) {
+              print('FILE fileName HAS PROGRESS $progress');
+            },
+            onDownloadCompleted: (String path) {
+              //OpenFile.open(path);
+              print('FILE DOWNLOADED TO PATH: $path');
+            },
+            onDownloadError: (error) {
+              print('DOWNLOAD ERROR: $error');
+            });
+      }
+    } catch (e) {
+      debugPrint('Error getting version info: $e');
+    }
+  }
+
   //todo fix the bug when there's no ticket assigned
   @override
   Widget build(BuildContext context) {
@@ -127,11 +154,18 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const LoginPage()));
             }
+            if (value == 'update') {
+              getVersionInfo();
+            }
           },
           itemBuilder: (context) => [
             const PopupMenuItem(
               value: 'logout',
               child: Text('تسجيل الخروج'),
+            ),
+            const PopupMenuItem(
+              value: 'update',
+              child: Text('تحديث'),
             ),
           ],
         ),
