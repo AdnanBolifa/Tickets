@@ -2,7 +2,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jwt_auth/data/ticket_config.dart';
-import 'package:jwt_auth/screens/screen_downloader.dart';
+import 'package:jwt_auth/screens/download_dialog.dart';
 import 'package:jwt_auth/screens/ticket_page.dart';
 import 'package:jwt_auth/screens/login.dart';
 import 'package:jwt_auth/services/api_service.dart';
@@ -31,20 +31,21 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isPermission = false;
   var checkAllPermissions = CheckPermission();
 
-  checkPermission() async {
+  @override
+  void initState() {
+    super.initState();
+    _fetchReports();
+    _checkPermission();
+    getVersionInfo();
+  }
+
+  _checkPermission() async {
     var permission = await checkAllPermissions.isStoragePermission();
     if (permission) {
       setState(() {
         isPermission = true;
       });
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchReports();
-    checkPermission();
   }
 
   void _filterUsers(String query) {
