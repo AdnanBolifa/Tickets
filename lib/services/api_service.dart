@@ -173,17 +173,16 @@ class ApiService {
           debugPrint('APK URL: $apkUrl');
           return apkUrl; // Return the APK URL
         } else {
-          debugPrint('No new version available');
-          return null; // No new version available, return null
+          Fluttertoast.showToast(msg: 'لا يوجد تحديثات في الوقت الحالي!');
+          return null;
         }
       } else {
         debugPrint('Error: ${response.statusCode}');
-        return null; // Return null in case of an error
+        return null;
       }
     } catch (e) {
-      // Handle any exceptions
       debugPrint('Error: $e');
-      return null; // Return null in case of an exception
+      return null;
     }
   }
 

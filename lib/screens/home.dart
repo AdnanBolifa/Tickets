@@ -1,12 +1,13 @@
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jwt_auth/data/ticket_config.dart';
+import 'package:jwt_auth/screens/screen_downloader.dart';
 import 'package:jwt_auth/screens/ticket_page.dart';
 import 'package:jwt_auth/screens/login.dart';
 import 'package:jwt_auth/services/api_service.dart';
 import 'package:jwt_auth/services/auth_service.dart';
+import 'package:jwt_auth/services/check_permissions.dart';
 import 'package:jwt_auth/theme/colors.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../widgets/ticket_card.dart';
@@ -26,12 +27,24 @@ class _HomeScreenState extends State<HomeScreen> {
   bool noInternet = false;
   bool hasError = false;
   bool noTickets = false;
-  //double? _progress;
+
+  bool isPermission = false;
+  var checkAllPermissions = CheckPermission();
+
+  checkPermission() async {
+    var permission = await checkAllPermissions.isStoragePermission();
+    if (permission) {
+      setState(() {
+        isPermission = true;
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _fetchReports();
+    checkPermission();
   }
 
   void _filterUsers(String query) {
@@ -120,31 +133,77 @@ class _HomeScreenState extends State<HomeScreen> {
       String? url =
           await ApiService().checkAndUpdateVersion(packageInfo.version);
       if (url != null) {
-        FileDownloader.downloadFile(
-            url: url,
-            onProgress: (fileName, progress) {
-              print('FILE fileName HAS PROGRESS $progress');
-            },
-            onDownloadCompleted: (String path) {
-              //OpenFile.open(path);
-              print('FILE DOWNLOADED TO PATH: $path');
-            },
-            onDownloadError: (error) {
-              print('DOWNLOAD ERROR: $error');
-            });
+        Fluttertoast.showToast(
+          msg: "تم العثور على تحديث!",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 3,
+          backgroundColor: Colors.grey,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        if (context.mounted) {
+          bool updateConfirmed = await showUpdateConfirmationDialog(context);
+          if (updateConfirmed && context.mounted) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return DownloadProgressDialog(url: url);
+              },
+            );
+          }
+        }
       }
     } catch (e) {
       debugPrint('Error getting version info: $e');
     }
   }
 
-  //todo fix the bug when there's no ticket assigned
+  Future<bool> showUpdateConfirmationDialog(BuildContext context) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text(
+                "يوجد تحديث متوفر!",
+                textDirection: TextDirection.rtl,
+              ),
+              content: const Text("هل تريد تحديث التطبيق؟",
+                  textDirection: TextDirection.rtl),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text("نعم"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: const Text("لا"),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("الرئيسية"),
         centerTitle: true,
+        actions: [
+          IconButton(
+              onPressed: () {
+                getVersionInfo();
+              },
+              icon: const Icon(Icons.download))
+        ],
         leading: PopupMenuButton(
           icon: const Icon(Icons.menu),
           onSelected: (value) {
@@ -154,18 +213,11 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const LoginPage()));
             }
-            if (value == 'update') {
-              getVersionInfo();
-            }
           },
           itemBuilder: (context) => [
             const PopupMenuItem(
               value: 'logout',
               child: Text('تسجيل الخروج'),
-            ),
-            const PopupMenuItem(
-              value: 'update',
-              child: Text('تحديث'),
             ),
           ],
         ),

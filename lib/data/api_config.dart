@@ -1,5 +1,5 @@
 class APIConfig {
-  // Base URL for the API
+  //* Base URL for the API
   //static const String _baseUrl = 'http://165.16.36.4:8015/api/';
 
   //* Testing
