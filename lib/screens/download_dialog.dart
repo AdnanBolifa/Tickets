@@ -1,6 +1,8 @@
+import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:open_file_plus/open_file_plus.dart';
+import 'package:path_provider/path_provider.dart';
 
 class DownloadProgressDialog extends StatefulWidget {
   final String url;
@@ -11,41 +13,58 @@ class DownloadProgressDialog extends StatefulWidget {
 }
 
 class _DownloadProgressDialogState extends State<DownloadProgressDialog> {
-  late double downloadProgress;
+  late int downloadProgress;
   late String downloadStatus;
 
   @override
   void initState() {
     super.initState();
-    downloadProgress = 0.0;
+    downloadProgress = 0;
     downloadStatus = 'جاري التحميل';
     downloadFile();
   }
 
-  void downloadFile() {
-    FileDownloader.downloadFile(
-      url: widget.url,
-      onProgress: (fileName, progress) {
-        setState(() {
-          downloadProgress = progress;
-        });
-      },
-      onDownloadCompleted: (String path) {
-        setState(() {
-          downloadStatus = 'انتهى التحميل';
-        });
-        _openFile(path);
-        Navigator.of(context)
-            .pop(); // Close the dialog after download completion
-      },
-      onDownloadError: (error) {
-        setState(() {
-          downloadStatus = 'فشل التحميل';
-        });
-        debugPrint('DOWNLOAD ERROR: $error');
-        Navigator.of(context).pop(); // Close the dialog on error
-      },
-    );
+  Future<void> downloadFile() async {
+    Dio dio = Dio();
+
+    try {
+      Directory? appDocDir = await getApplicationDocumentsDirectory();
+      String downloadDir = '${appDocDir.path}/Download';
+
+      // Ensure that the download directory exists
+      await Directory(downloadDir).create(recursive: true);
+
+      String fileName = 'Ticket.apk'; // You can change the filename as needed
+      String savePath = '$downloadDir/$fileName';
+
+      await dio.download(
+        widget.url,
+        savePath,
+        onReceiveProgress: (received, total) {
+          if (total != -1) {
+            setState(() {
+              downloadProgress = (received / total * 100).floor();
+            });
+          }
+        },
+      );
+      setState(() {
+        downloadStatus = 'انتهى التحميل';
+      });
+
+      _openFile(savePath);
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+    } catch (error) {
+      setState(() {
+        downloadStatus = 'فشل التحميل';
+      });
+      debugPrint('DOWNLOAD ERROR: $error');
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+    }
   }
 
   @override
