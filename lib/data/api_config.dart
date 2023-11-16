@@ -1,9 +1,9 @@
 class APIConfig {
   //* Base URL for the API
-  //static const String _baseUrl = 'http://165.16.36.4:8015/api/';
+  static const String _baseUrl = 'http://165.16.36.4:8015/api/';
 
   //* Testing
-  static const String _baseUrl = 'http://165.16.36.4:8877/api/';
+  //static const String _baseUrl = 'http://165.16.36.4:8877/api/';
 
   // Paths for different API endpoints
   static const String _vipPath = 'vip';
@@ -30,4 +30,6 @@ class APIConfig {
   static String sectorsUrl = _buildUrl('tower/sectors/list');
 
   static String checkUpdates = 'http://165.16.36.4:8015/checkUpdate.php';
+
+  static String version = '1.0.4';
 }
