@@ -29,9 +29,6 @@ class _HomeScreenState extends State<HomeScreen> {
   bool hasError = false;
   bool noTickets = false;
 
-  bool isPermission = false;
-  var checkAllPermissions = CheckPermission();
-
   @override
   void initState() {
     super.initState();
@@ -40,9 +37,11 @@ class _HomeScreenState extends State<HomeScreen> {
     getVersionInfo();
   }
 
+  bool isPermission = false;
+  var permissionManager = PermissionManager();
   _checkPermission() async {
-    var permission = await checkAllPermissions.isStoragePermission();
-    if (permission) {
+    bool arePermissionsGranted = await permissionManager.checkAndRequestPermissions();
+    if (arePermissionsGranted) {
       setState(() {
         isPermission = true;
       });
@@ -75,21 +74,20 @@ class _HomeScreenState extends State<HomeScreen> {
       });
 
       try {
-        if (context.mounted) {
-          final users = await ApiService().getReports(context);
-          if (users != null && users.isNotEmpty) {
-            setState(() {
-              ticketList = users;
-              originalList = ticketList;
-            });
-          } else if (users!.isEmpty) {
-            _noTickets();
-          } else {
-            _handleError();
-            throw Exception('ApiService returned null or an error response.');
-          }
+        final users = await ApiService().getReports();
+        if (users != null && users.isNotEmpty) {
+          setState(() {
+            ticketList = users;
+            originalList = ticketList;
+          });
+        } else if (users!.isEmpty) {
+          _noTickets();
+        } else {
+          _handleError();
+          throw Exception('ApiService returned null or an error response.');
         }
       } catch (e) {
+        ApiService().handleErrorMessage(msg: "Error while refreshing data: $e");
         debugPrint('Error while refreshing data: $e');
         // Set a flag to indicate an error occurred.
         _handleError();
@@ -171,8 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 "يوجد تحديث متوفر!",
                 textDirection: TextDirection.rtl,
               ),
-              content: const Text("هل تريد تحديث التطبيق؟",
-                  textDirection: TextDirection.rtl),
+              content: const Text("هل تريد تحديث التطبيق؟", textDirection: TextDirection.rtl),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
@@ -212,8 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
             if (value == 'logout') {
               searchController.clear();
               AuthService().logout();
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const LoginPage()));
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => const LoginPage()));
             }
           },
           itemBuilder: (context) => [
@@ -234,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ? "😎 لا يوجد لديك اي بلاغ "
                         : noInternet
                             ? "لا يوجد اتصال بالإنترنت"
-                            : "An error occurred",
+                            : "حدث خطأ يرجى تسجيل الخروج",
                     style: const TextStyle(fontSize: 22),
                   ),
                   const SizedBox(height: 10),
@@ -277,12 +273,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             itemCount: ticketList.length,
                             itemBuilder: (context, index) {
                               return GestureDetector(
-                                onTap: ticketList[index].status == 'inprogress'
+                                onTap: ticketList[index].status != 'done'
                                     ? () {
                                         Navigator.of(context).push(
                                           MaterialPageRoute(
-                                            builder: (context) => AddTicket(
-                                                ticket: ticketList[index]),
+                                            builder: (context) => AddTicket(ticket: ticketList[index]),
                                           ),
                                         );
                                       }

@@ -1,10 +1,8 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_auth/data/api_config.dart';
-import 'package:jwt_auth/data/comment_config.dart';
 import 'package:jwt_auth/data/location_config.dart';
 import 'package:jwt_auth/data/multi_survey_config.dart';
 import 'package:jwt_auth/data/problem_config.dart';
@@ -12,21 +10,13 @@ import 'package:jwt_auth/data/sectors_config.dart';
 import 'package:jwt_auth/data/ticket_config.dart';
 import 'package:jwt_auth/data/solution_config.dart';
 import 'package:jwt_auth/data/towers_config.dart';
+import 'package:jwt_auth/main.dart';
 import 'package:jwt_auth/screens/login.dart';
 import 'package:jwt_auth/services/auth_service.dart';
-import 'package:jwt_auth/widgets/error_dialog.dart';
 
 class ApiService {
   Future<void> addReport(
-      String name,
-      acc,
-      phone,
-      place,
-      sector,
-      List<int> problems,
-      List<int> solution,
-      double longitude,
-      double latitude) async {
+      String name, acc, phone, place, sector, List<int> problems, List<int> solution, double longitude, double latitude) async {
     final requestBody = {
       'name': name,
       'phone': phone,
@@ -81,12 +71,8 @@ class ApiService {
     }
   }
 
-  Future<List<Ticket>?> getReports(context) async {
-    final authService = AuthService();
-
-    final response = await _performAuthenticatedGetRequest(
-        APIConfig.reportsUrl, authService, context);
-
+  Future<List<Ticket>?> getReports() async {
+    final response = await _performGetRequest(APIConfig.ticketsUrl);
     if (response.statusCode == 200) {
       try {
         final responseMap = jsonDecode(utf8.decode(response.bodyBytes));
@@ -95,20 +81,10 @@ class ApiService {
         final users = data.map((user) => Ticket.fromJson(user)).toList();
         return users;
       } catch (e) {
-        ErrorDialog(
-          line1: "Response code: ${response.statusCode}",
-          line2: "Body: ${response.body}",
-          line3: "execption message: $e",
-        );
-        debugPrint('Error parsing JSON: $e');
+        Fluttertoast.showToast(msg: 'Error parsing JSON: $e');
       }
     } else {
-      ErrorDialog(
-        line1: "Response code: ${response.statusCode}",
-        line2: "Body: ${response.body}",
-        line3: "execption message",
-      );
-      debugPrint('Request failed with status code: ${response.statusCode}');
+      //handleErrorMessage(response: response);
       debugPrint('Response content: ${response.body}');
     }
 
@@ -118,13 +94,6 @@ class ApiService {
   Future<List<Problem>> fetchProblems() async {
     final response = await _performGetRequest(APIConfig.problemsUrl);
     return _parseProblemsResponse(response);
-  }
-
-  Future<List<CommentData>> fetchComments() async {
-    final authService = AuthService();
-    final response = await _performAuthenticatedGetRequest(
-        APIConfig.reportsUrl, authService);
-    return _parseCommentsResponse(response);
   }
 
   Future<List<Solution>> fetchSolutions() async {
@@ -145,15 +114,14 @@ class ApiService {
     return _parseSurveyResponse(response);
   }
 
-  Future<void> submitSurvey(
-      int id, List<Map<String, dynamic>> answersList) async {
+  Future<void> submitSurvey(int id, List<Map<String, dynamic>> answersList) async {
     final body = {
       "ticket": id,
       "answers_list": answersList,
     };
-    if (kDebugMode) {
-      print(jsonEncode(body));
-    }
+
+    debugPrint(jsonEncode(body));
+
     await _performPostRequest(APIConfig.submitSurveyUrl, body);
   }
 
@@ -166,8 +134,7 @@ class ApiService {
   Future<String?> checkAndUpdateVersion(String frontendVersion) async {
     try {
       final response = await http.post(
-        Uri.parse(
-            '${APIConfig.checkUpdates}?frontend_version=$frontendVersion'),
+        Uri.parse('${APIConfig.checkUpdates}?frontend_version=$frontendVersion'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -187,141 +154,82 @@ class ApiService {
           return null;
         }
       } else {
-        ErrorDialog(
-          line1: "Response code: ${response.statusCode}",
-          line2: "Body: ${response.body}",
-          line3: "execption message",
-        );
+        Fluttertoast.showToast(msg: 'Error: ${response.statusCode}');
         debugPrint('Error: ${response.statusCode}');
         return null;
       }
     } catch (e) {
+      Fluttertoast.showToast(msg: 'Error: $e');
       debugPrint('Error: $e');
       return null;
     }
   }
 
-  //helper functions
+  //API CALLS
   Future<http.Response> _performGetRequest(String url) async {
-    try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        return response;
-      } else {
-        Fluttertoast.showToast(msg: 'خطأ ${response.statusCode}');
-        ErrorDialog(
-          line1: "Response code: ${response.statusCode}",
-          line2: "Body: ${response.body}",
-          line3: "API ",
-        );
-        throw Exception('Failed to fetch data');
-      }
-    } catch (error) {
-      debugPrint('_performGetRequest ERROR: $error');
-      rethrow;
-    }
+    return _performRequest(url, 'GET', null);
   }
 
   Future<void> _performPostRequest(String url, dynamic body) async {
-    try {
-      final accessToken = await AuthService().getAccessToken();
-      final response = await http.post(
-        Uri.parse(url),
-        body: jsonEncode(body),
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-          'Content-Type': 'application/json',
-        },
-      );
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        Fluttertoast.showToast(
-          msg: "تمت اضافة البيانات بنجاح!",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          textColor: Colors.white,
-        );
-      } else {
-        Fluttertoast.showToast(
-          msg: "لم تتم عملية الاضافة!",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          textColor: Colors.white,
-        );
-        ErrorDialog(
-          line1: "Response code: ${response.statusCode}",
-          line2: "Body: ${response.body}",
-          line3: "exception message",
-        );
-      }
-    } catch (error) {
-      debugPrint('_performPostRequest ERROR: $error');
-      rethrow;
-    }
+    await _performRequest(url, 'POST', body);
   }
 
   Future<void> _performPutRequest(String url, dynamic body) async {
-    try {
-      final accessToken = await AuthService().getAccessToken();
-      final response = await http.put(
-        Uri.parse(url),
-        body: jsonEncode(body),
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        Fluttertoast.showToast(
-          msg: "تم تحديث البيانات بنجاح!",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          textColor: Colors.white,
-        );
-      } else {
-        Fluttertoast.showToast(
-          msg: "!لم يتم التحديث ${response.statusCode}",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          textColor: Colors.white,
-        );
-        ErrorDialog(
-          line1: "Response code: ${response.statusCode}",
-          line2: "Body: ${response.body}",
-          line3: "exception message",
-        );
-        throw Exception('Failed to update data: ${response.statusCode}');
-      }
-    } catch (error) {
-      debugPrint('_performPutRequest ERROR: $error');
-      rethrow;
-    }
+    await _performRequest(url, 'PUT', body);
   }
 
-  Future<http.Response> _performAuthenticatedGetRequest(
-      String url, AuthService authService,
-      [BuildContext? context]) async {
+  //helper functions
+  Future<http.Response> _performRequest(String url, String method, dynamic body, {int retryCount = 0}) async {
     try {
-      final accessToken = await authService.getAccessToken();
-      final response = await http.get(Uri.parse(url), headers: {
+      final accessToken = await AuthService().getAccessToken();
+      final Map<String, String> headers = {
         'Authorization': 'Bearer $accessToken',
-      });
+        'Content-Type': 'application/json',
+      };
 
-      if (response.statusCode == 401) {
-        await authService.getNewAccessToken();
-        return _performAuthenticatedGetRequest(url, authService, context);
-      } else if (response.statusCode != 200 && context != null) {
-        if (context.mounted) {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => const LoginPage(),
-          ));
-        }
-        authService.logout();
+      http.Response response;
+
+      if (method == 'GET') {
+        response = await http.get(
+          Uri.parse(url),
+          headers: headers,
+        );
+      } else if (method == 'POST') {
+        response = await http.post(
+          Uri.parse(url),
+          body: (body != null) ? jsonEncode(body) : null,
+          headers: headers,
+        );
+      } else if (method == 'PUT') {
+        response = await http.put(
+          Uri.parse(url),
+          body: (body != null) ? jsonEncode(body) : null,
+          headers: headers,
+        );
+      } else {
+        throw Exception('Unsupported HTTP method: $method');
       }
 
-      return response;
+      if (response.statusCode == 401) {
+        // Token expired, attempt to refresh
+        if (retryCount < 3) {
+          await AuthService().getNewAccessToken();
+          // Retry the original request with the new access token
+          return _performRequest(url, method, body, retryCount: retryCount + 1);
+        }
+        // If token refresh fails after multiple attempts, log the user out
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (context) => const LoginPage(),
+          ),
+        );
+      } else if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 204) {
+        handleErrorMessage(response: response);
+      }
+      return response; // Return the response if you need it
     } catch (error) {
-      debugPrint('_performAuthenticatedGetRequest ERROR: $error');
+      handleErrorMessage(msg: 'انتهت الجلسة: $error');
+      debugPrint('Request CATCH ERROR: $error');
       rethrow;
     }
   }
@@ -339,19 +247,6 @@ class ApiService {
     }
   }
 
-  List<CommentData> _parseCommentsResponse(http.Response response) {
-    if (response.statusCode == 200) {
-      final responseMap = jsonDecode(utf8.decode(response.bodyBytes));
-      final List<dynamic> results = responseMap['results'];
-
-      final comments =
-          results.map((item) => CommentData.fromJson(item)).toList();
-      return comments;
-    } else {
-      throw Exception('Failed to fetch comments');
-    }
-  }
-
   List<Solution> _parseSolutionsResponse(http.Response response) {
     if (response.statusCode == 200) {
       final responseMap = jsonDecode(utf8.decode(response.bodyBytes));
@@ -364,21 +259,18 @@ class ApiService {
     }
   }
 
-  List<Tower> _parseTowerResponse(
-      http.Response responseTower, http.Response responseSec) {
+  List<Tower> _parseTowerResponse(http.Response responseTower, http.Response responseSec) {
     if (responseSec.statusCode == 200) {
       final secResponseMap = jsonDecode(utf8.decode(responseSec.bodyBytes));
       final List<dynamic> secResults = secResponseMap['results'];
       final sectors = secResults.map((item) => Sector.fromJson(item)).toList();
 
       if (responseTower.statusCode == 200) {
-        final towerResponseMap =
-            jsonDecode(utf8.decode(responseTower.bodyBytes));
+        final towerResponseMap = jsonDecode(utf8.decode(responseTower.bodyBytes));
         final List<dynamic> towerResults = towerResponseMap['results'];
         final towers = towerResults.map((item) {
           final tower = Tower.fromJson(item);
-          tower.sectors =
-              sectors.where((sec) => sec.tower == tower.id).toList();
+          tower.sectors = sectors.where((sec) => sec.tower == tower.id).toList();
           return tower;
         }).toList();
 
@@ -395,13 +287,74 @@ class ApiService {
     if (response.statusCode == 200) {
       final responseMap = jsonDecode(utf8.decode(response.bodyBytes));
       final List<dynamic> results = responseMap['results'];
-      //todo
-      //int count = responseMap['count'] as int;
-
       final survey = results.map((item) => MultiSurvey.fromJson(item)).toList();
       return survey;
     } else {
       throw Exception('Failed to fetch solutions');
     }
+  }
+
+  void handleErrorMessage({String? msg, http.Response? response}) {
+    String responseBody = response?.body ?? '';
+    Map<String, dynamic>? parsedBody;
+
+    try {
+      // Attempt to parse the response body as JSON
+      parsedBody = jsonDecode(responseBody);
+    } catch (e) {
+      // Parsing failed, treat it as plain text
+    }
+
+    debugPrint('Status Code: ${response?.statusCode}');
+    debugPrint('Response Body:');
+
+    if (parsedBody != null) {
+      debugPrint(const JsonEncoder.withIndent('  ').convert(parsedBody));
+    } else {
+      debugPrint(responseBody);
+    }
+
+    showDialog(
+      context: navigatorKey.currentState!.context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Response Details'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Status Code: ${response?.statusCode}'),
+                const Text('Response Body:'),
+                if (parsedBody != null)
+                  Text(
+                    const JsonEncoder.withIndent('  ').convert(parsedBody),
+                    style: const TextStyle(fontFamily: 'monospace'),
+                  ),
+                if (parsedBody == null) Text(responseBody),
+                if (msg != null) Text(msg),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+            TextButton(
+              onPressed: () {
+                navigatorKey.currentState?.push(
+                  MaterialPageRoute(
+                    builder: (context) => const LoginPage(),
+                  ),
+                );
+              },
+              child: const Text('تسجيل الخروج'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
